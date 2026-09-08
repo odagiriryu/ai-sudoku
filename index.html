@@ -12,22 +12,30 @@
         
         /* メニュー画面 */
         h1 { color: #333; font-size: 1.8rem; margin-bottom: 20px; text-align: center; }
-        .stage-list { display: flex; flex-direction: column; gap: 15px; width: 80%; margin-top: 20px; }
+        
+        /* コーチ選択エリア */
+        .coach-selection { display: flex; gap: 10px; margin-bottom: 25px; }
+        .coach-btn { font-size: 2rem; background-color: white; border: 3px solid #ccc; border-radius: 15px; padding: 10px 20px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .coach-btn.active { border-color: #2196F3; background-color: #e3f2fd; transform: scale(1.05); box-shadow: 0 4px 8px rgba(33,150,243,0.3); }
+        .coach-label { font-size: 0.8rem; color: #555; text-align: center; font-weight: bold; margin-top: 5px; }
+
+        .stage-list { display: flex; flex-direction: column; gap: 15px; width: 80%; }
         .stage-btn { background-color: #2196F3; color: white; border: none; padding: 15px; font-size: 1.2rem; font-weight: bold; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .stage-btn.test-btn { background-color: #ff9800; } /* テスト用ボタンの色 */
         
         /* ゲーム画面 */
         .header-area { display: flex; justify-content: space-between; align-items: center; width: 90%; margin-bottom: 10px; }
         #stage-title { color: #333; font-size: 1.2rem; font-weight: bold; margin: 0; }
         #timer { font-size: 1.2rem; font-weight: bold; color: #555; letter-spacing: 2px; }
 
-        /* AIキャラクター表示エリア（仮） */
-        .ai-character-area { width: 90%; height: 100px; background-color: #e3f2fd; border: 2px dashed #90caf9; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #1976d2; font-weight: bold; margin-bottom: 15px; }
+        /* AIキャラクター表示エリア */
+        .ai-character-area { width: 90%; height: 90px; background-color: white; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 2px solid #e0e0e0; font-size: 3.5rem; transition: all 0.3s ease; }
+        .ai-character-area.thinking { background-color: #fff8e1; border-color: #ffc107; }
+        .ai-character-area.happy { background-color: #e8f5e9; border-color: #4caf50; }
 
         /* ナンプレ盤面 */
         .sudoku-container { background-color: white; padding: 5px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
-        /* table-layout: fixed を追加してセルの伸び縮みを防止 */
         table { border-collapse: collapse; border: 3px solid #333; table-layout: fixed; }
-        /* box-sizing と line-height を追加してサイズを完全に固定 */
         td { border: 1px solid #ccc; width: 35px; height: 35px; max-width: 35px; max-height: 35px; box-sizing: border-box; text-align: center; vertical-align: middle; font-size: 1.4rem; font-weight: bold; color: #333; cursor: pointer; padding: 0; user-select: none; line-height: 1; }
         
         /* マスの状態 */
@@ -72,11 +80,30 @@
     <!-- メニュー画面 -->
     <div id="menu-screen">
         <h1>AIコーチ付きナンプレ</h1>
+        
+        <div style="color: #666; font-size: 0.9rem; margin-bottom: 10px;">相棒（コーチ）を選んでください</div>
+        <div class="coach-selection">
+            <div>
+                <button class="coach-btn" id="coach-male" onclick="selectCoach('male')">👨‍💼</button>
+                <div class="coach-label">男性</div>
+            </div>
+            <div>
+                <button class="coach-btn active" id="coach-robot" onclick="selectCoach('robot')">🤖</button>
+                <div class="coach-label">ロボット</div>
+            </div>
+            <div>
+                <button class="coach-btn" id="coach-female" onclick="selectCoach('female')">👩‍💼</button>
+                <div class="coach-label">女性</div>
+            </div>
+        </div>
+
         <div style="color: #666; font-size: 0.9rem; margin-bottom: 10px;">遊ぶステージを選んでください</div>
         <div class="stage-list">
-            <button class="stage-btn" onclick="startStage(0)">初級 1</button>
-            <button class="stage-btn" onclick="startStage(1)">初級 2</button>
-            <button class="stage-btn" onclick="startStage(2)">初級 3</button>
+            <!-- テスト用の簡単なステージを追加 -->
+            <button class="stage-btn test-btn" onclick="startStage(0)">テスト用 (あと1マス)</button>
+            <button class="stage-btn" onclick="startStage(1)">初級 1</button>
+            <button class="stage-btn" onclick="startStage(2)">初級 2</button>
+            <button class="stage-btn" onclick="startStage(3)">初級 3</button>
         </div>
     </div>
 
@@ -87,10 +114,8 @@
             <div id="timer">00:00</div>
         </div>
 
-        <!-- AIキャラクターエリア（次回実装） -->
-        <div class="ai-character-area">
-            ここにAIキャラクター（立ち絵）が表示されます
-        </div>
+        <!-- AIキャラクター表示エリア -->
+        <div id="ai-character" class="ai-character-area">🤖</div>
 
         <div class="sudoku-container">
             <table id="sudoku-board"></table>
@@ -121,49 +146,20 @@
     <script>
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzyvzJeCKPbw8Y2Phz5hAcKWovpk3JiPVu-_Ij4noKMCv7z7md-31o2tROvd0MVmTYjGg/exec";
 
+        // コーチ（キャラクター）の表情データ定義
+        const coachData = {
+            male: { normal: '👨‍💼', thinking: '🤔', happy: '🙌' },
+            female: { normal: '👩‍💼', thinking: '🧐', happy: '✨' },
+            robot: { normal: '🤖', thinking: '⚙️', happy: '🎉' }
+        };
+        let currentCoach = 'robot'; // 初期コーチ
+
         const stagesData = [
-            {
-                title: "初級 1",
-                board: [
-                    [5, 3, 0, 0, 7, 0, 0, 0, 0],
-                    [6, 0, 0, 1, 9, 5, 0, 0, 0],
-                    [0, 9, 8, 0, 0, 0, 0, 6, 0],
-                    [8, 0, 0, 0, 6, 0, 0, 0, 3],
-                    [4, 0, 0, 8, 0, 3, 0, 0, 1],
-                    [7, 0, 0, 0, 2, 0, 0, 0, 6],
-                    [0, 6, 0, 0, 0, 0, 2, 8, 0],
-                    [0, 0, 0, 4, 1, 9, 0, 0, 5],
-                    [0, 0, 0, 0, 8, 0, 0, 7, 9]
-                ]
-            },
-            {
-                title: "初級 2",
-                board: [
-                    [5, 0, 4, 6, 0, 8, 9, 1, 2],
-                    [6, 7, 2, 0, 9, 0, 3, 4, 8],
-                    [1, 0, 0, 3, 4, 2, 5, 0, 7],
-                    [8, 5, 9, 7, 0, 1, 4, 2, 0],
-                    [0, 2, 0, 0, 5, 0, 0, 9, 0],
-                    [0, 1, 3, 9, 0, 4, 8, 5, 6],
-                    [9, 0, 1, 5, 3, 7, 0, 0, 4],
-                    [2, 8, 7, 0, 1, 0, 6, 3, 5],
-                    [3, 4, 5, 2, 0, 6, 1, 0, 9]
-                ]
-            },
-            {
-                title: "初級 3",
-                board: [
-                    [0, 3, 4, 0, 7, 8, 9, 0, 0],
-                    [0, 0, 2, 1, 0, 5, 3, 4, 0],
-                    [1, 9, 0, 0, 4, 0, 5, 6, 7],
-                    [8, 0, 9, 7, 0, 1, 0, 2, 3],
-                    [4, 2, 0, 8, 0, 3, 0, 9, 1],
-                    [7, 1, 0, 9, 0, 4, 8, 0, 6],
-                    [9, 6, 1, 0, 3, 0, 0, 8, 4],
-                    [0, 8, 7, 4, 0, 9, 6, 0, 0],
-                    [0, 0, 5, 2, 8, 0, 1, 7, 0]
-                ]
-            }
+            // インデックス0にテスト用の簡単なステージを追加
+            { title: "テスト用 (あと1マス)", board: [[5, 3, 4, 6, 7, 8, 9, 1, 2], [6, 7, 2, 1, 9, 5, 3, 4, 8], [1, 9, 8, 3, 4, 2, 5, 6, 7], [8, 5, 9, 7, 6, 1, 4, 2, 3], [4, 2, 6, 8, 5, 3, 7, 9, 1], [7, 1, 3, 9, 2, 4, 8, 5, 6], [9, 6, 1, 5, 3, 7, 2, 8, 4], [2, 8, 7, 4, 1, 9, 6, 3, 5], [3, 4, 5, 2, 8, 6, 1, 7, 0]] },
+            { title: "初級 1", board: [[5, 3, 0, 0, 7, 0, 0, 0, 0], [6, 0, 0, 1, 9, 5, 0, 0, 0], [0, 9, 8, 0, 0, 0, 0, 6, 0], [8, 0, 0, 0, 6, 0, 0, 0, 3], [4, 0, 0, 8, 0, 3, 0, 0, 1], [7, 0, 0, 0, 2, 0, 0, 0, 6], [0, 6, 0, 0, 0, 0, 2, 8, 0], [0, 0, 0, 4, 1, 9, 0, 0, 5], [0, 0, 0, 0, 8, 0, 0, 7, 9]] },
+            { title: "初級 2", board: [[5, 0, 4, 6, 0, 8, 9, 1, 2], [6, 7, 2, 0, 9, 0, 3, 4, 8], [1, 0, 0, 3, 4, 2, 5, 0, 7], [8, 5, 9, 7, 0, 1, 4, 2, 0], [0, 2, 0, 0, 5, 0, 0, 9, 0], [0, 1, 3, 9, 0, 4, 8, 5, 6], [9, 0, 1, 5, 3, 7, 0, 0, 4], [2, 8, 7, 0, 1, 0, 6, 3, 5], [3, 4, 5, 2, 0, 6, 1, 0, 9]] },
+            { title: "初級 3", board: [[0, 3, 4, 0, 7, 8, 9, 0, 0], [0, 0, 2, 1, 0, 5, 3, 4, 0], [1, 9, 0, 0, 4, 0, 5, 6, 7], [8, 0, 9, 7, 0, 1, 0, 2, 3], [4, 2, 0, 8, 0, 3, 0, 9, 1], [7, 1, 0, 9, 0, 4, 8, 0, 6], [9, 6, 1, 0, 3, 0, 0, 8, 4], [0, 8, 7, 4, 0, 9, 6, 0, 0], [0, 0, 5, 2, 8, 0, 1, 7, 0]] }
         ];
 
         const menuScreen = document.getElementById('menu-screen');
@@ -174,6 +170,7 @@
         const loadingDisplay = document.getElementById('loading');
         const timerDisplay = document.getElementById('timer');
         const stageTitle = document.getElementById('stage-title');
+        const aiCharacterArea = document.getElementById('ai-character');
 
         let currentOriginalBoard = [];
         let currentBoardData = [];
@@ -184,6 +181,20 @@
         let timerInterval; 
         let isCleared = false; 
         let isUnlimitedHints = false; 
+
+        // コーチ選択時の処理
+        function selectCoach(coachType) {
+            currentCoach = coachType;
+            document.querySelectorAll('.coach-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`coach-${coachType}`).classList.add('active');
+        }
+
+        // キャラクターの状態（表情）を更新する処理
+        function setCoachState(state) {
+            aiCharacterArea.innerText = coachData[currentCoach][state];
+            // 背景色なども連動して変える
+            aiCharacterArea.className = 'ai-character-area ' + state;
+        }
 
         function startStage(stageIndex) {
             const stage = stagesData[stageIndex];
@@ -200,6 +211,9 @@
             hintBtn.classList.remove('upsell-mode');
             hintBtn.innerText = `AIにヒントを聞く (残り${hintsRemaining}回)`;
             hintArea.style.display = 'none';
+
+            // コーチを通常状態にリセット
+            setCoachState('normal');
 
             createBoardUI();
             startTimer();
@@ -321,6 +335,9 @@
                 stopTimer(); 
                 document.querySelectorAll('.selected').forEach(cell => cell.classList.remove('selected'));
                 selectedCell = null;
+                
+                // コーチを「クリア（喜ぶ）」状態に変更
+                setCoachState('happy');
 
                 const clearTime = timerDisplay.innerText;
                 
@@ -351,6 +368,9 @@
             hintArea.style.display = 'none';
             hintArea.innerText = "";
             clearHighlights();
+            
+            // コーチを「思考中」状態に変更
+            setCoachState('thinking');
 
             try {
                 const response = await fetch(GAS_WEB_APP_URL, {
@@ -375,6 +395,9 @@
             } finally {
                 loadingDisplay.style.display = 'none';
                 hintBtn.disabled = false;
+                
+                // ヒント取得が完了したらコーチを「通常」状態に戻す
+                setCoachState('normal');
                 
                 if (isUnlimitedHints) {
                     hintBtn.innerText = "AIにヒントを聞く (使い放題✨)";
