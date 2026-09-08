@@ -2,34 +2,39 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AIコーチ付きナンプレ</title>
     <style>
         /* CSS: 画面の見た目の設定 */
-        body { font-family: sans-serif; background-color: #f0f8ff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        body { font-family: sans-serif; background-color: #f0f8ff; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; margin: 0; padding-top: 10px; touch-action: manipulation; }
         
-        /* 画面切り替え用のコンテナ */
         #menu-screen, #game-screen { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; }
         
-        /* メニュー画面のデザイン */
+        /* メニュー画面 */
         h1 { color: #333; font-size: 1.8rem; margin-bottom: 20px; text-align: center; }
         .stage-list { display: flex; flex-direction: column; gap: 15px; width: 80%; margin-top: 20px; }
-        .stage-btn { background-color: #2196F3; color: white; border: none; padding: 15px; font-size: 1.2rem; font-weight: bold; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: background-color 0.2s; }
-        .stage-btn:hover { background-color: #1976D2; }
+        .stage-btn { background-color: #2196F3; color: white; border: none; padding: 15px; font-size: 1.2rem; font-weight: bold; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        /* ゲーム画面 */
+        .header-area { display: flex; justify-content: space-between; align-items: center; width: 90%; margin-bottom: 10px; }
+        #stage-title { color: #333; font-size: 1.2rem; font-weight: bold; margin: 0; }
+        #timer { font-size: 1.2rem; font-weight: bold; color: #555; letter-spacing: 2px; }
 
-        /* ゲーム画面のデザイン */
-        #stage-title { color: #333; font-size: 1.5rem; margin-bottom: 5px; margin-top: 0; }
-        #timer { font-size: 1.2rem; font-weight: bold; color: #555; margin-bottom: 15px; letter-spacing: 2px; }
+        /* AIキャラクター表示エリア（仮） */
+        .ai-character-area { width: 90%; height: 100px; background-color: #e3f2fd; border: 2px dashed #90caf9; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #1976d2; font-weight: bold; margin-bottom: 15px; }
 
         /* ナンプレ盤面 */
-        .sudoku-container { background-color: white; padding: 5px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        table { border-collapse: collapse; border: 3px solid #333; }
-        td { border: 1px solid #ccc; width: 35px; height: 35px; text-align: center; vertical-align: middle; padding: 0; position: relative; }
+        .sudoku-container { background-color: white; padding: 5px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        /* table-layout: fixed を追加してセルの伸び縮みを防止 */
+        table { border-collapse: collapse; border: 3px solid #333; table-layout: fixed; }
+        /* box-sizing と line-height を追加してサイズを完全に固定 */
+        td { border: 1px solid #ccc; width: 35px; height: 35px; max-width: 35px; max-height: 35px; box-sizing: border-box; text-align: center; vertical-align: middle; font-size: 1.4rem; font-weight: bold; color: #333; cursor: pointer; padding: 0; user-select: none; line-height: 1; }
         
-        /* 入力マスの設定 */
-        input.cell { width: 100%; height: 100%; border: none; text-align: center; font-size: 1.2rem; font-weight: bold; color: #333; background: transparent; outline: none; padding: 0; }
-        input.cell.fixed { color: #1565c0; background-color: #f5f5f5; }
-        input.cell.error { color: #d32f2f; background-color: #ffebee; }
+        /* マスの状態 */
+        td.fixed { color: #1565c0; background-color: #f5f5f5; cursor: default; }
+        td.selected { background-color: #bbdefb; border: 2px solid #2196f3; }
+        td.error { color: #d32f2f; background-color: #ffebee; }
+        td.highlight { background-color: #ffe082 !important; border: 2px solid #ffa000 !important; }
         
         /* 3x3ブロックの太線 */
         td:nth-child(3n) { border-right: 2px solid #333; }
@@ -39,20 +44,19 @@
         td:first-child { border-left: 3px solid #333; }
         tr:first-child td { border-top: 3px solid #333; }
 
-        /* ヒント時のハイライト */
-        .highlight { background-color: #ffe082 !important; border: 2px solid #ffa000 !important; }
+        /* カスタムテンキー */
+        .numpad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; width: 90%; margin-bottom: 15px; }
+        .num-btn { background-color: #eceff1; border: 1px solid #cfd8dc; padding: 12px 0; font-size: 1.2rem; font-weight: bold; border-radius: 8px; color: #333; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .num-btn:active { background-color: #cfd8dc; transform: translateY(2px); box-shadow: none; }
+        .num-btn.delete-btn { grid-column: span 5; background-color: #ffe0b2; color: #e65100; border-color: #ffcc80; }
 
         /* コントロールパネル */
-        .controls { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 90%; max-width: 400px; }
-        #hint-area { background-color: #fff9c4; border-left: 5px solid #fbc02d; padding: 15px; border-radius: 5px; min-height: 50px; width: 100%; box-sizing: border-box; color: #555; font-size: 0.9rem; line-height: 1.4; display: none; }
-        #loading { display: none; color: #fbc02d; font-weight: bold; font-size: 0.9rem; margin-top: -10px; }
+        .controls { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 90%; }
+        #hint-area { background-color: #fff9c4; border-left: 5px solid #fbc02d; padding: 15px; border-radius: 5px; width: 100%; box-sizing: border-box; color: #555; font-size: 0.9rem; line-height: 1.4; display: none; }
+        #loading { display: none; color: #fbc02d; font-weight: bold; font-size: 0.9rem; }
         
-        /* ボタン設定 */
-        #hint-btn { background-color: #fbc02d; color: white; border: none; padding: 12px 24px; font-size: 1rem; font-weight: bold; border-radius: 25px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: background-color 0.2s; width: 100%; }
-        #hint-btn:hover:not(:disabled) { background-color: #f9a825; }
+        #hint-btn { background-color: #fbc02d; color: white; border: none; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 25px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); width: 100%; }
         #hint-btn:disabled { background-color: #e0e0e0; cursor: not-allowed; box-shadow: none; color: #888; }
-        
-        /* 課金誘導時のボタン */
         #hint-btn.upsell-mode { background-color: #ff9800; animation: pulse 2s infinite; }
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7); }
@@ -60,9 +64,7 @@
             100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0); }
         }
 
-        /* メニューに戻るボタン */
-        .back-btn { margin-top: 15px; background-color: #9e9e9e; color: white; border: none; padding: 10px 20px; font-size: 0.9rem; border-radius: 5px; cursor: pointer; }
-        .back-btn:hover { background-color: #757575; }
+        .back-btn { background-color: transparent; color: #757575; border: none; padding: 10px; font-size: 0.9rem; cursor: pointer; text-decoration: underline; margin-bottom: 20px;}
     </style>
 </head>
 <body>
@@ -71,83 +73,99 @@
     <div id="menu-screen">
         <h1>AIコーチ付きナンプレ</h1>
         <div style="color: #666; font-size: 0.9rem; margin-bottom: 10px;">遊ぶステージを選んでください</div>
-        
         <div class="stage-list">
-            <!-- 括弧内はテスト用の状態説明です -->
-            <button class="stage-btn" onclick="startStage(0)">初級 1 (あと1マス)</button>
-            <button class="stage-btn" onclick="startStage(1)">初級 2 (あと2マス)</button>
-            <button class="stage-btn" onclick="startStage(2)">初級 3 (少し空き)</button>
+            <button class="stage-btn" onclick="startStage(0)">初級 1</button>
+            <button class="stage-btn" onclick="startStage(1)">初級 2</button>
+            <button class="stage-btn" onclick="startStage(2)">初級 3</button>
         </div>
     </div>
 
-    <!-- ゲーム画面 (最初は非表示) -->
+    <!-- ゲーム画面 -->
     <div id="game-screen" style="display: none;">
-        <h1 id="stage-title">初級 1</h1>
-        <div id="timer">00:00</div>
+        <div class="header-area">
+            <div id="stage-title">初級 1</div>
+            <div id="timer">00:00</div>
+        </div>
+
+        <!-- AIキャラクターエリア（次回実装） -->
+        <div class="ai-character-area">
+            ここにAIキャラクター（立ち絵）が表示されます
+        </div>
 
         <div class="sudoku-container">
             <table id="sudoku-board"></table>
+        </div>
+
+        <!-- カスタムテンキー -->
+        <div class="numpad">
+            <button class="num-btn" onclick="inputNumber(1)">1</button>
+            <button class="num-btn" onclick="inputNumber(2)">2</button>
+            <button class="num-btn" onclick="inputNumber(3)">3</button>
+            <button class="num-btn" onclick="inputNumber(4)">4</button>
+            <button class="num-btn" onclick="inputNumber(5)">5</button>
+            <button class="num-btn" onclick="inputNumber(6)">6</button>
+            <button class="num-btn" onclick="inputNumber(7)">7</button>
+            <button class="num-btn" onclick="inputNumber(8)">8</button>
+            <button class="num-btn" onclick="inputNumber(9)">9</button>
+            <button class="num-btn delete-btn" onclick="inputNumber(0)">マスを空にする</button>
         </div>
 
         <div class="controls">
             <div id="loading">AIコーチが思考中...（約6秒）</div>
             <div id="hint-area"></div>
             <button id="hint-btn">AIにヒントを聞く (残り3回)</button>
-            
-            <button class="back-btn" onclick="backToMenu()">◀ メニューに戻る</button>
+            <button class="back-btn" onclick="backToMenu()">メニューに戻る</button>
         </div>
     </div>
 
     <script>
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzyvzJeCKPbw8Y2Phz5hAcKWovpk3JiPVu-_Ij4noKMCv7z7md-31o2tROvd0MVmTYjGg/exec";
 
-        // 複数のステージデータを配列で管理
         const stagesData = [
             {
                 title: "初級 1",
                 board: [
-                    [5, 3, 4, 6, 7, 8, 9, 1, 2],
-                    [6, 7, 2, 1, 9, 5, 3, 4, 8],
-                    [1, 9, 8, 3, 4, 2, 5, 6, 7],
-                    [8, 5, 9, 7, 6, 1, 4, 2, 3],
-                    [4, 2, 6, 8, 5, 3, 7, 9, 1],
-                    [7, 1, 3, 9, 2, 4, 8, 5, 6],
-                    [9, 6, 1, 5, 3, 7, 2, 8, 4],
-                    [2, 8, 7, 4, 1, 9, 6, 3, 5],
-                    [3, 4, 5, 2, 8, 6, 1, 7, 0] // あと1マス
+                    [5, 3, 0, 0, 7, 0, 0, 0, 0],
+                    [6, 0, 0, 1, 9, 5, 0, 0, 0],
+                    [0, 9, 8, 0, 0, 0, 0, 6, 0],
+                    [8, 0, 0, 0, 6, 0, 0, 0, 3],
+                    [4, 0, 0, 8, 0, 3, 0, 0, 1],
+                    [7, 0, 0, 0, 2, 0, 0, 0, 6],
+                    [0, 6, 0, 0, 0, 0, 2, 8, 0],
+                    [0, 0, 0, 4, 1, 9, 0, 0, 5],
+                    [0, 0, 0, 0, 8, 0, 0, 7, 9]
                 ]
             },
             {
                 title: "初級 2",
                 board: [
-                    [5, 3, 4, 6, 7, 8, 9, 1, 2],
-                    [6, 7, 2, 1, 9, 5, 3, 4, 8],
-                    [1, 9, 8, 3, 4, 2, 5, 6, 7],
-                    [8, 5, 9, 7, 6, 1, 4, 2, 3],
-                    [4, 2, 6, 8, 5, 3, 7, 9, 1],
-                    [7, 1, 3, 9, 2, 4, 8, 5, 6],
-                    [9, 6, 1, 5, 3, 7, 2, 8, 4],
-                    [2, 8, 7, 4, 1, 9, 6, 3, 0], // あと2マス
-                    [3, 4, 5, 2, 8, 6, 1, 7, 0] 
+                    [5, 0, 4, 6, 0, 8, 9, 1, 2],
+                    [6, 7, 2, 0, 9, 0, 3, 4, 8],
+                    [1, 0, 0, 3, 4, 2, 5, 0, 7],
+                    [8, 5, 9, 7, 0, 1, 4, 2, 0],
+                    [0, 2, 0, 0, 5, 0, 0, 9, 0],
+                    [0, 1, 3, 9, 0, 4, 8, 5, 6],
+                    [9, 0, 1, 5, 3, 7, 0, 0, 4],
+                    [2, 8, 7, 0, 1, 0, 6, 3, 5],
+                    [3, 4, 5, 2, 0, 6, 1, 0, 9]
                 ]
             },
             {
                 title: "初級 3",
                 board: [
-                    [5, 3, 4, 6, 7, 8, 9, 1, 2],
-                    [6, 7, 2, 1, 9, 5, 3, 4, 8],
-                    [1, 9, 8, 3, 4, 2, 5, 6, 7],
-                    [8, 5, 9, 7, 6, 1, 4, 2, 3],
-                    [4, 2, 6, 8, 5, 3, 7, 9, 1],
-                    [7, 1, 3, 9, 2, 4, 8, 5, 6],
-                    [9, 6, 1, 5, 3, 7, 2, 8, 4],
-                    [2, 8, 0, 4, 0, 9, 6, 3, 5], // あと3マス空き
-                    [3, 4, 5, 2, 8, 6, 1, 7, 0] 
+                    [0, 3, 4, 0, 7, 8, 9, 0, 0],
+                    [0, 0, 2, 1, 0, 5, 3, 4, 0],
+                    [1, 9, 0, 0, 4, 0, 5, 6, 7],
+                    [8, 0, 9, 7, 0, 1, 0, 2, 3],
+                    [4, 2, 0, 8, 0, 3, 0, 9, 1],
+                    [7, 1, 0, 9, 0, 4, 8, 0, 6],
+                    [9, 6, 1, 0, 3, 0, 0, 8, 4],
+                    [0, 8, 7, 4, 0, 9, 6, 0, 0],
+                    [0, 0, 5, 2, 8, 0, 1, 7, 0]
                 ]
             }
         ];
 
-        // 画面要素
         const menuScreen = document.getElementById('menu-screen');
         const gameScreen = document.getElementById('game-screen');
         const table = document.getElementById('sudoku-board');
@@ -157,51 +175,47 @@
         const timerDisplay = document.getElementById('timer');
         const stageTitle = document.getElementById('stage-title');
 
-        // ゲーム状態
+        let currentOriginalBoard = [];
         let currentBoardData = [];
+        let selectedCell = null; 
+        
         let hintsRemaining = 3; 
         let startTime; 
         let timerInterval; 
         let isCleared = false; 
         let isUnlimitedHints = false; 
 
-        // --- 画面切り替えと初期化 ---
         function startStage(stageIndex) {
-            // ステージデータを読み込み
             const stage = stagesData[stageIndex];
-            currentBoardData = stage.board;
+            currentOriginalBoard = JSON.parse(JSON.stringify(stage.board));
+            currentBoardData = JSON.parse(JSON.stringify(stage.board));
             stageTitle.innerText = stage.title;
 
-            // 状態をリセット
             hintsRemaining = 3;
             isCleared = false;
-            // （※今回は各ステージごとに未課金状態からスタートするテスト仕様にしています）
             isUnlimitedHints = false; 
+            selectedCell = null;
             
             hintBtn.disabled = false;
             hintBtn.classList.remove('upsell-mode');
             hintBtn.innerText = `AIにヒントを聞く (残り${hintsRemaining}回)`;
             hintArea.style.display = 'none';
 
-            // 盤面を再描画してタイマー開始
             createBoardUI();
             startTimer();
 
-            // 画面をゲームに切り替え
             menuScreen.style.display = 'none';
             gameScreen.style.display = 'flex';
         }
 
         function backToMenu() {
-            // タイマーを止めてメニューに戻る
             stopTimer();
             gameScreen.style.display = 'none';
             menuScreen.style.display = 'flex';
         }
 
-        // --- タイマー処理 ---
         function startTimer() {
-            stopTimer(); // 前のタイマーが動いていたら止める
+            stopTimer(); 
             timerDisplay.innerText = "00:00";
             startTime = Date.now();
             timerInterval = setInterval(() => {
@@ -216,62 +230,71 @@
             if (timerInterval) clearInterval(timerInterval);
         }
 
-        // --- 盤面UIの生成 ---
         function createBoardUI() {
-            table.innerHTML = ""; // 前の盤面を完全に消す
+            table.innerHTML = ""; 
 
             for (let r = 0; r < 9; r++) {
                 const tr = document.createElement('tr');
                 for (let c = 0; c < 9; c++) {
                     const td = document.createElement('td');
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.inputMode = 'numeric';
-                    input.maxLength = 1;
-                    input.className = 'cell';
-                    input.id = `cell-${r}-${c}`;
+                    td.id = `cell-${r}-${c}`;
                     
                     if (currentBoardData[r][c] !== 0) {
-                        input.value = currentBoardData[r][c];
-                        input.readOnly = true;
-                        input.classList.add('fixed');
+                        td.innerText = currentBoardData[r][c];
+                        td.classList.add('fixed');
                     } else {
-                        input.addEventListener('input', (e) => {
-                            if (isCleared) return; 
-                            
-                            if (!/^[1-9]$/.test(e.target.value)) {
-                                e.target.value = '';
-                            }
-                            checkBoardErrors();
-                            checkClear();
-                        });
+                        td.innerText = "";
+                        td.addEventListener('click', () => selectCell(r, c));
                     }
-                    td.appendChild(input);
                     tr.appendChild(td);
                 }
                 table.appendChild(tr);
             }
         }
 
+        function selectCell(r, c) {
+            if (isCleared) return;
+            if (currentOriginalBoard[r][c] !== 0) return; 
+
+            document.querySelectorAll('.selected').forEach(cell => cell.classList.remove('selected'));
+            clearHighlights();
+
+            selectedCell = { r, c };
+            document.getElementById(`cell-${r}-${c}`).classList.add('selected');
+        }
+
+        function inputNumber(num) {
+            if (isCleared || !selectedCell) return;
+            
+            const r = selectedCell.r;
+            const c = selectedCell.c;
+            
+            currentBoardData[r][c] = num;
+            const td = document.getElementById(`cell-${r}-${c}`);
+            td.innerText = num === 0 ? '' : num;
+            
+            checkBoardErrors();
+            checkClear();
+        }
+
         function checkBoardErrors() {
-            const currentBoard = getCurrentBoard();
-            document.querySelectorAll('.cell').forEach(cell => cell.classList.remove('error'));
+            document.querySelectorAll('.cell, td').forEach(cell => cell.classList.remove('error'));
 
             for (let r = 0; r < 9; r++) {
                 for (let c = 0; c < 9; c++) {
-                    const val = currentBoard[r][c];
+                    const val = currentBoardData[r][c];
                     if (val === 0) continue;
 
                     let isError = false;
                     for (let i = 0; i < 9; i++) {
-                        if (i !== c && currentBoard[r][i] === val) isError = true;
-                        if (i !== r && currentBoard[i][c] === val) isError = true;
+                        if (i !== c && currentBoardData[r][i] === val) isError = true;
+                        if (i !== r && currentBoardData[i][c] === val) isError = true;
                     }
                     const br = Math.floor(r / 3) * 3;
                     const bc = Math.floor(c / 3) * 3;
                     for (let i = 0; i < 3; i++) {
                         for (let j = 0; j < 3; j++) {
-                            if ((br + i !== r || bc + j !== c) && currentBoard[br + i][bc + j] === val) {
+                            if ((br + i !== r || bc + j !== c) && currentBoardData[br + i][bc + j] === val) {
                                 isError = true;
                             }
                         }
@@ -284,43 +307,30 @@
         }
 
         function checkClear() {
-            const currentBoard = getCurrentBoard();
             let isFull = true;
             let hasError = document.querySelectorAll('.error').length > 0;
 
             for (let r = 0; r < 9; r++) {
                 for (let c = 0; c < 9; c++) {
-                    if (currentBoard[r][c] === 0) isFull = false;
+                    if (currentBoardData[r][c] === 0) isFull = false;
                 }
             }
 
             if (isFull && !hasError && !isCleared) {
                 isCleared = true; 
                 stopTimer(); 
+                document.querySelectorAll('.selected').forEach(cell => cell.classList.remove('selected'));
+                selectedCell = null;
+
                 const clearTime = timerDisplay.innerText;
                 
                 setTimeout(() => {
                     alert(`おめでとうございます！クリアです！\nクリアタイム: ${clearTime}`);
-                    // OKを押したらメニューに戻る
                     backToMenu();
                 }, 100);
             }
         }
 
-        function getCurrentBoard() {
-            const board = [];
-            for (let r = 0; r < 9; r++) {
-                const row = [];
-                for (let c = 0; c < 9; c++) {
-                    const value = parseInt(document.getElementById(`cell-${r}-${c}`).value) || 0;
-                    row.push(value);
-                }
-                board.push(row);
-            }
-            return board;
-        }
-
-        // --- ヒント機能 ---
         async function getHint() {
             if (hintsRemaining <= 0 && !isUnlimitedHints) {
                 const wantsToBuy = confirm("1ステージの無料ヒント枠（3回）を使い切りました。\n\n「AIヒント使い放題パック（100円）」を購入して、このステージの続きをAIと一緒に解きますか？\n\n※OKを押すと決済完了テストになります。");
@@ -335,7 +345,6 @@
                 }
             }
 
-            const currentBoard = getCurrentBoard();
             hintBtn.disabled = true;
             hintBtn.innerText = "思考中...";
             loadingDisplay.style.display = 'block';
@@ -346,7 +355,7 @@
             try {
                 const response = await fetch(GAS_WEB_APP_URL, {
                     method: 'POST',
-                    body: JSON.stringify(currentBoard)
+                    body: JSON.stringify(currentBoardData)
                 });
                 if (!response.ok) throw new Error('通信エラーが発生しました。');
                 const result = await response.json();
@@ -383,16 +392,17 @@
             const c = parseInt(hint.target_col) - 1;
             hintArea.innerText = `コーチのヒント：\n(${r+1}行, ${c+1}列) に「${hint.answer_number}」が入ります。\n理由: ${hint.explanation}`;
             hintArea.style.display = 'block';
+            
             const targetCell = document.getElementById(`cell-${r}-${c}`);
             targetCell.classList.add('highlight');
-            targetCell.focus();
+            
+            selectCell(r, c);
         }
 
         function clearHighlights() {
             document.querySelectorAll('.highlight').forEach(cell => cell.classList.remove('highlight'));
         }
 
-        // 初期化イベントの設定
         hintBtn.addEventListener('click', getHint);
 
     </script>
