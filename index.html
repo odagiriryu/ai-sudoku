@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIコーチ付きナンプレ</title>
+    <style>
+        /* CSS: 画面の見た目の設定 */
+        body { font-family: sans-serif; background-color: #f0f8ff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        
+        /* 画面切り替え用のコンテナ */
+        #menu-screen, #game-screen { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; }
+        
+        /* メニュー画面のデザイン */
+        h1 { color: #333; font-size: 1.8rem; margin-bottom: 20px; text-align: center; }
+        .stage-list { display: flex; flex-direction: column; gap: 15px; width: 80%; margin-top: 20px; }
+        .stage-btn { background-color: #2196F3; color: white; border: none; padding: 15px; font-size: 1.2rem; font-weight: bold; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: background-color 0.2s; }
+        .stage-btn:hover { background-color: #1976D2; }
+
+        /* ゲーム画面のデザイン */
+        #stage-title { color: #333; font-size: 1.5rem; margin-bottom: 5px; margin-top: 0; }
+        #timer { font-size: 1.2rem; font-weight: bold; color: #555; margin-bottom: 15px; letter-spacing: 2px; }
+
+        /* ナンプレ盤面 */
+        .sudoku-container { background-color: white; padding: 5px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        table { border-collapse: collapse; border: 3px solid #333; }
+        td { border: 1px solid #ccc; width: 35px; height: 35px; text-align: center; vertical-align: middle; padding: 0; position: relative; }
+        
+        /* 入力マスの設定 */
+        input.cell { width: 100%; height: 100%; border: none; text-align: center; font-size: 1.2rem; font-weight: bold; color: #333; background: transparent; outline: none; padding: 0; }
+        input.cell.fixed { color: #1565c0; background-color: #f5f5f5; }
+        input.cell.error { color: #d32f2f; background-color: #ffebee; }
+        
+        /* 3x3ブロックの太線 */
+        td:nth-child(3n) { border-right: 2px solid #333; }
+        tr:nth-child(3n) td { border-bottom: 2px solid #333; }
+        td:last-child { border-right: 3px solid #333; }
+        tr:last-child td { border-bottom: 3px solid #333; }
+        td:first-child { border-left: 3px solid #333; }
+        tr:first-child td { border-top: 3px solid #333; }
+
+        /* ヒント時のハイライト */
+        .highlight { background-color: #ffe082 !important; border: 2px solid #ffa000 !important; }
+
+        /* コントロールパネル */
+        .controls { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 90%; max-width: 400px; }
+        #hint-area { background-color: #fff9c4; border-left: 5px solid #fbc02d; padding: 15px; border-radius: 5px; min-height: 50px; width: 100%; box-sizing: border-box; color: #555; font-size: 0.9rem; line-height: 1.4; display: none; }
+        #loading { display: none; color: #fbc02d; font-weight: bold; font-size: 0.9rem; margin-top: -10px; }
+        
+        /* ボタン設定 */
+        #hint-btn { background-color: #fbc02d; color: white; border: none; padding: 12px 24px; font-size: 1rem; font-weight: bold; border-radius: 25px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: background-color 0.2s; width: 100%; }
+        #hint-btn:hover:not(:disabled) { background-color: #f9a825; }
+        #hint-btn:disabled { background-color: #e0e0e0; cursor: not-allowed; box-shadow: none; color: #888; }
+        
+        /* 課金誘導時のボタン */
+        #hint-btn.upsell-mode { background-color: #ff9800; animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 152, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0); }
+        }
+
+        /* メニューに戻るボタン */
+        .back-btn { margin-top: 15px; background-color: #9e9e9e; color: white; border: none; padding: 10px 20px; font-size: 0.9rem; border-radius: 5px; cursor: pointer; }
+        .back-btn:hover { background-color: #757575; }
+    </style>
+</head>
+<body>
+
+    <!-- メニュー画面 -->
+    <div id="menu-screen">
+        <h1>AIコーチ付きナンプレ</h1>
+        <div style="color: #666; font-size: 0.9rem; margin-bottom: 10px;">遊ぶステージを選んでください</div>
+        
+        <div class="stage-list">
+            <!-- 括弧内はテスト用の状態説明です -->
+            <button class="stage-btn" onclick="startStage(0)">初級 1 (あと1マス)</button>
+            <button class="stage-btn" onclick="startStage(1)">初級 2 (あと2マス)</button>
+            <button class="stage-btn" onclick="startStage(2)">初級 3 (少し空き)</button>
+        </div>
+    </div>
+
+    <!-- ゲーム画面 (最初は非表示) -->
+    <div id="game-screen" style="display: none;">
+        <h1 id="stage-title">初級 1</h1>
+        <div id="timer">00:00</div>
+
+        <div class="sudoku-container">
+            <table id="sudoku-board"></table>
+        </div>
+
+        <div class="controls">
+            <div id="loading">AIコーチが思考中...（約6秒）</div>
+            <div id="hint-area"></div>
+            <button id="hint-btn">AIにヒントを聞く (残り3回)</button>
+            
+            <button class="back-btn" onclick="backToMenu()">◀ メニューに戻る</button>
+        </div>
+    </div>
+
+    <script>
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzyvzJeCKPbw8Y2Phz5hAcKWovpk3JiPVu-_Ij4noKMCv7z7md-31o2tROvd0MVmTYjGg/exec";
+
+        // 複数のステージデータを配列で管理
+        const stagesData = [
+            {
+                title: "初級 1",
+                board: [
+                    [5, 3, 4, 6, 7, 8, 9, 1, 2],
+                    [6, 7, 2, 1, 9, 5, 3, 4, 8],
+                    [1, 9, 8, 3, 4, 2, 5, 6, 7],
+                    [8, 5, 9, 7, 6, 1, 4, 2, 3],
+                    [4, 2, 6, 8, 5, 3, 7, 9, 1],
+                    [7, 1, 3, 9, 2, 4, 8, 5, 6],
+                    [9, 6, 1, 5, 3, 7, 2, 8, 4],
+                    [2, 8, 7, 4, 1, 9, 6, 3, 5],
+                    [3, 4, 5, 2, 8, 6, 1, 7, 0] // あと1マス
+                ]
+            },
+            {
+                title: "初級 2",
+                board: [
+                    [5, 3, 4, 6, 7, 8, 9, 1, 2],
+                    [6, 7, 2, 1, 9, 5, 3, 4, 8],
+                    [1, 9, 8, 3, 4, 2, 5, 6, 7],
+                    [8, 5, 9, 7, 6, 1, 4, 2, 3],
+                    [4, 2, 6, 8, 5, 3, 7, 9, 1],
+                    [7, 1, 3, 9, 2, 4, 8, 5, 6],
+                    [9, 6, 1, 5, 3, 7, 2, 8, 4],
+                    [2, 8, 7, 4, 1, 9, 6, 3, 0], // あと2マス
+                    [3, 4, 5, 2, 8, 6, 1, 7, 0] 
+                ]
+            },
+            {
+                title: "初級 3",
+                board: [
+                    [5, 3, 4, 6, 7, 8, 9, 1, 2],
+                    [6, 7, 2, 1, 9, 5, 3, 4, 8],
+                    [1, 9, 8, 3, 4, 2, 5, 6, 7],
+                    [8, 5, 9, 7, 6, 1, 4, 2, 3],
+                    [4, 2, 6, 8, 5, 3, 7, 9, 1],
+                    [7, 1, 3, 9, 2, 4, 8, 5, 6],
+                    [9, 6, 1, 5, 3, 7, 2, 8, 4],
+                    [2, 8, 0, 4, 0, 9, 6, 3, 5], // あと3マス空き
+                    [3, 4, 5, 2, 8, 6, 1, 7, 0] 
+                ]
+            }
+        ];
+
+        // 画面要素
+        const menuScreen = document.getElementById('menu-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const table = document.getElementById('sudoku-board');
+        const hintBtn = document.getElementById('hint-btn');
+        const hintArea = document.getElementById('hint-area');
+        const loadingDisplay = document.getElementById('loading');
+        const timerDisplay = document.getElementById('timer');
+        const stageTitle = document.getElementById('stage-title');
+
+        // ゲーム状態
+        let currentBoardData = [];
+        let hintsRemaining = 3; 
+        let startTime; 
+        let timerInterval; 
+        let isCleared = false; 
+        let isUnlimitedHints = false; 
+
+        // --- 画面切り替えと初期化 ---
+        function startStage(stageIndex) {
+            // ステージデータを読み込み
+            const stage = stagesData[stageIndex];
+            currentBoardData = stage.board;
+            stageTitle.innerText = stage.title;
+
+            // 状態をリセット
+            hintsRemaining = 3;
+            isCleared = false;
+            // （※今回は各ステージごとに未課金状態からスタートするテスト仕様にしています）
+            isUnlimitedHints = false; 
+            
+            hintBtn.disabled = false;
+            hintBtn.classList.remove('upsell-mode');
+            hintBtn.innerText = `AIにヒントを聞く (残り${hintsRemaining}回)`;
+            hintArea.style.display = 'none';
+
+            // 盤面を再描画してタイマー開始
+            createBoardUI();
+            startTimer();
+
+            // 画面をゲームに切り替え
+            menuScreen.style.display = 'none';
+            gameScreen.style.display = 'flex';
+        }
+
+        function backToMenu() {
+            // タイマーを止めてメニューに戻る
+            stopTimer();
+            gameScreen.style.display = 'none';
+            menuScreen.style.display = 'flex';
+        }
+
+        // --- タイマー処理 ---
+        function startTimer() {
+            stopTimer(); // 前のタイマーが動いていたら止める
+            timerDisplay.innerText = "00:00";
+            startTime = Date.now();
+            timerInterval = setInterval(() => {
+                const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsedSeconds / 60).toString().padStart(2, '0');
+                const seconds = (elapsedSeconds % 60).toString().padStart(2, '0');
+                timerDisplay.innerText = `${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+        }
+
+        // --- 盤面UIの生成 ---
+        function createBoardUI() {
+            table.innerHTML = ""; // 前の盤面を完全に消す
+
+            for (let r = 0; r < 9; r++) {
+                const tr = document.createElement('tr');
+                for (let c = 0; c < 9; c++) {
+                    const td = document.createElement('td');
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.inputMode = 'numeric';
+                    input.maxLength = 1;
+                    input.className = 'cell';
+                    input.id = `cell-${r}-${c}`;
+                    
+                    if (currentBoardData[r][c] !== 0) {
+                        input.value = currentBoardData[r][c];
+                        input.readOnly = true;
+                        input.classList.add('fixed');
+                    } else {
+                        input.addEventListener('input', (e) => {
+                            if (isCleared) return; 
+                            
+                            if (!/^[1-9]$/.test(e.target.value)) {
+                                e.target.value = '';
+                            }
+                            checkBoardErrors();
+                            checkClear();
+                        });
+                    }
+                    td.appendChild(input);
+                    tr.appendChild(td);
+                }
+                table.appendChild(tr);
+            }
+        }
+
+        function checkBoardErrors() {
+            const currentBoard = getCurrentBoard();
+            document.querySelectorAll('.cell').forEach(cell => cell.classList.remove('error'));
+
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    const val = currentBoard[r][c];
+                    if (val === 0) continue;
+
+                    let isError = false;
+                    for (let i = 0; i < 9; i++) {
+                        if (i !== c && currentBoard[r][i] === val) isError = true;
+                        if (i !== r && currentBoard[i][c] === val) isError = true;
+                    }
+                    const br = Math.floor(r / 3) * 3;
+                    const bc = Math.floor(c / 3) * 3;
+                    for (let i = 0; i < 3; i++) {
+                        for (let j = 0; j < 3; j++) {
+                            if ((br + i !== r || bc + j !== c) && currentBoard[br + i][bc + j] === val) {
+                                isError = true;
+                            }
+                        }
+                    }
+                    if (isError) {
+                        document.getElementById(`cell-${r}-${c}`).classList.add('error');
+                    }
+                }
+            }
+        }
+
+        function checkClear() {
+            const currentBoard = getCurrentBoard();
+            let isFull = true;
+            let hasError = document.querySelectorAll('.error').length > 0;
+
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    if (currentBoard[r][c] === 0) isFull = false;
+                }
+            }
+
+            if (isFull && !hasError && !isCleared) {
+                isCleared = true; 
+                stopTimer(); 
+                const clearTime = timerDisplay.innerText;
+                
+                setTimeout(() => {
+                    alert(`おめでとうございます！クリアです！\nクリアタイム: ${clearTime}`);
+                    // OKを押したらメニューに戻る
+                    backToMenu();
+                }, 100);
+            }
+        }
+
+        function getCurrentBoard() {
+            const board = [];
+            for (let r = 0; r < 9; r++) {
+                const row = [];
+                for (let c = 0; c < 9; c++) {
+                    const value = parseInt(document.getElementById(`cell-${r}-${c}`).value) || 0;
+                    row.push(value);
+                }
+                board.push(row);
+            }
+            return board;
+        }
+
+        // --- ヒント機能 ---
+        async function getHint() {
+            if (hintsRemaining <= 0 && !isUnlimitedHints) {
+                const wantsToBuy = confirm("1ステージの無料ヒント枠（3回）を使い切りました。\n\n「AIヒント使い放題パック（100円）」を購入して、このステージの続きをAIと一緒に解きますか？\n\n※OKを押すと決済完了テストになります。");
+                
+                if (wantsToBuy) {
+                    isUnlimitedHints = true;
+                    hintBtn.classList.remove('upsell-mode');
+                    hintBtn.innerText = "AIにヒントを聞く (使い放題✨)";
+                    alert("【テスト】決済が完了しました！ヒントが使い放題になりました。");
+                } else {
+                    return;
+                }
+            }
+
+            const currentBoard = getCurrentBoard();
+            hintBtn.disabled = true;
+            hintBtn.innerText = "思考中...";
+            loadingDisplay.style.display = 'block';
+            hintArea.style.display = 'none';
+            hintArea.innerText = "";
+            clearHighlights();
+
+            try {
+                const response = await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(currentBoard)
+                });
+                if (!response.ok) throw new Error('通信エラーが発生しました。');
+                const result = await response.json();
+                
+                if (result.success && result.hint) {
+                    if (!isUnlimitedHints) {
+                        hintsRemaining--;
+                    }
+                    displayHint(result.hint);
+                } else {
+                    hintArea.innerText = `ヒントを取得できませんでした: ${result.error?.message || '不明なエラー'}`;
+                    hintArea.style.display = 'block';
+                }
+            } catch (error) {
+                hintArea.innerText = `エラーが発生しました: ${error.message}`;
+                hintArea.style.display = 'block';
+            } finally {
+                loadingDisplay.style.display = 'none';
+                hintBtn.disabled = false;
+                
+                if (isUnlimitedHints) {
+                    hintBtn.innerText = "AIにヒントを聞く (使い放題✨)";
+                } else if (hintsRemaining > 0) {
+                    hintBtn.innerText = `AIにヒントを聞く (残り${hintsRemaining}回)`;
+                } else {
+                    hintBtn.innerText = "💎 ヒント使い放題を解放する";
+                    hintBtn.classList.add('upsell-mode');
+                }
+            }
+        }
+
+        function displayHint(hint) {
+            const r = parseInt(hint.target_row) - 1;
+            const c = parseInt(hint.target_col) - 1;
+            hintArea.innerText = `コーチのヒント：\n(${r+1}行, ${c+1}列) に「${hint.answer_number}」が入ります。\n理由: ${hint.explanation}`;
+            hintArea.style.display = 'block';
+            const targetCell = document.getElementById(`cell-${r}-${c}`);
+            targetCell.classList.add('highlight');
+            targetCell.focus();
+        }
+
+        function clearHighlights() {
+            document.querySelectorAll('.highlight').forEach(cell => cell.classList.remove('highlight'));
+        }
+
+        // 初期化イベントの設定
+        hintBtn.addEventListener('click', getHint);
+
+    </script>
+</body>
+</html>
