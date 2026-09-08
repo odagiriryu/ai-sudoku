@@ -10,10 +10,8 @@
         
         #menu-screen, #game-screen { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; }
         
-        /* メニュー画面 */
         h1 { color: #333; font-size: 1.8rem; margin-bottom: 20px; text-align: center; }
         
-        /* コーチ選択エリア */
         .coach-selection { display: flex; gap: 10px; margin-bottom: 25px; }
         .coach-btn { font-size: 2rem; background-color: white; border: 3px solid #ccc; border-radius: 15px; padding: 10px 20px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .coach-btn.active { border-color: #2196F3; background-color: #e3f2fd; transform: scale(1.05); box-shadow: 0 4px 8px rgba(33,150,243,0.3); }
@@ -21,30 +19,25 @@
 
         .stage-list { display: flex; flex-direction: column; gap: 15px; width: 80%; }
         .stage-btn { background-color: #2196F3; color: white; border: none; padding: 15px; font-size: 1.2rem; font-weight: bold; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .stage-btn.test-btn { background-color: #ff9800; } /* テスト用ボタンの色 */
+        .stage-btn.test-btn { background-color: #ff9800; } 
         
-        /* ゲーム画面 */
         .header-area { display: flex; justify-content: space-between; align-items: center; width: 90%; margin-bottom: 10px; }
         #stage-title { color: #333; font-size: 1.2rem; font-weight: bold; margin: 0; }
         #timer { font-size: 1.2rem; font-weight: bold; color: #555; letter-spacing: 2px; }
 
-        /* AIキャラクター表示エリア */
         .ai-character-area { width: 90%; height: 90px; background-color: white; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 2px solid #e0e0e0; font-size: 3.5rem; transition: all 0.3s ease; }
         .ai-character-area.thinking { background-color: #fff8e1; border-color: #ffc107; }
         .ai-character-area.happy { background-color: #e8f5e9; border-color: #4caf50; }
 
-        /* ナンプレ盤面 */
         .sudoku-container { background-color: white; padding: 5px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
         table { border-collapse: collapse; border: 3px solid #333; table-layout: fixed; }
         td { border: 1px solid #ccc; width: 35px; height: 35px; max-width: 35px; max-height: 35px; box-sizing: border-box; text-align: center; vertical-align: middle; font-size: 1.4rem; font-weight: bold; color: #333; cursor: pointer; padding: 0; user-select: none; line-height: 1; }
         
-        /* マスの状態 */
         td.fixed { color: #1565c0; background-color: #f5f5f5; cursor: default; }
         td.selected { background-color: #bbdefb; border: 2px solid #2196f3; }
         td.error { color: #d32f2f; background-color: #ffebee; }
         td.highlight { background-color: #ffe082 !important; border: 2px solid #ffa000 !important; }
         
-        /* 3x3ブロックの太線 */
         td:nth-child(3n) { border-right: 2px solid #333; }
         tr:nth-child(3n) td { border-bottom: 2px solid #333; }
         td:last-child { border-right: 3px solid #333; }
@@ -52,13 +45,11 @@
         td:first-child { border-left: 3px solid #333; }
         tr:first-child td { border-top: 3px solid #333; }
 
-        /* カスタムテンキー */
         .numpad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; width: 90%; margin-bottom: 15px; }
         .num-btn { background-color: #eceff1; border: 1px solid #cfd8dc; padding: 12px 0; font-size: 1.2rem; font-weight: bold; border-radius: 8px; color: #333; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .num-btn:active { background-color: #cfd8dc; transform: translateY(2px); box-shadow: none; }
         .num-btn.delete-btn { grid-column: span 5; background-color: #ffe0b2; color: #e65100; border-color: #ffcc80; }
 
-        /* コントロールパネル */
         .controls { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 90%; }
         #hint-area { background-color: #fff9c4; border-left: 5px solid #fbc02d; padding: 15px; border-radius: 5px; width: 100%; box-sizing: border-box; color: #555; font-size: 0.9rem; line-height: 1.4; display: none; }
         #loading { display: none; color: #fbc02d; font-weight: bold; font-size: 0.9rem; }
@@ -66,13 +57,16 @@
         #hint-btn { background-color: #fbc02d; color: white; border: none; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 25px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); width: 100%; }
         #hint-btn:disabled { background-color: #e0e0e0; cursor: not-allowed; box-shadow: none; color: #888; }
         #hint-btn.upsell-mode { background-color: #ff9800; animation: pulse 2s infinite; }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(255, 152, 0, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0); }
-        }
-
+        
         .back-btn { background-color: transparent; color: #757575; border: none; padding: 10px; font-size: 0.9rem; cursor: pointer; text-decoration: underline; margin-bottom: 20px;}
+
+        #clear-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background-color: white; padding: 30px; border-radius: 20px; text-align: center; width: 80%; max-width: 300px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .modal-title { font-size: 1.8rem; color: #ff9800; margin-top: 0; margin-bottom: 10px; font-weight: bold; }
+        .modal-time { font-size: 1.2rem; color: #555; margin-bottom: 25px; }
+        .modal-btn { background-color: #4CAF50; color: white; border: none; padding: 12px 24px; font-size: 1.1rem; font-weight: bold; border-radius: 25px; cursor: pointer; width: 100%; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .modal-btn:hover { background-color: #43a047; }
     </style>
 </head>
 <body>
@@ -98,30 +92,22 @@
         </div>
 
         <div style="color: #666; font-size: 0.9rem; margin-bottom: 10px;">遊ぶステージを選んでください</div>
-        <div class="stage-list">
-            <!-- テスト用の簡単なステージを追加 -->
-            <button class="stage-btn test-btn" onclick="startStage(0)">テスト用 (あと1マス)</button>
-            <button class="stage-btn" onclick="startStage(1)">初級 1</button>
-            <button class="stage-btn" onclick="startStage(2)">初級 2</button>
-            <button class="stage-btn" onclick="startStage(3)">初級 3</button>
-        </div>
+        <div class="stage-list"></div>
     </div>
 
     <!-- ゲーム画面 -->
     <div id="game-screen" style="display: none;">
         <div class="header-area">
-            <div id="stage-title">初級 1</div>
+            <div id="stage-title"></div>
             <div id="timer">00:00</div>
         </div>
 
-        <!-- AIキャラクター表示エリア -->
         <div id="ai-character" class="ai-character-area">🤖</div>
 
         <div class="sudoku-container">
             <table id="sudoku-board"></table>
         </div>
 
-        <!-- カスタムテンキー -->
         <div class="numpad">
             <button class="num-btn" onclick="inputNumber(1)">1</button>
             <button class="num-btn" onclick="inputNumber(2)">2</button>
@@ -143,23 +129,34 @@
         </div>
     </div>
 
+    <div id="clear-modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-title">🎉 クリア！ 🎉</div>
+            <div class="modal-time">タイム: <span id="final-time">00:00</span></div>
+            <button class="modal-btn" onclick="closeClearModal()">メニューへ戻る</button>
+        </div>
+    </div>
+
     <script>
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzyvzJeCKPbw8Y2Phz5hAcKWovpk3JiPVu-_Ij4noKMCv7z7md-31o2tROvd0MVmTYjGg/exec";
+        
+        // ★ ここにStripeの決済URLを設定しました ★
+        const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/test_00wfZj6KO1KXaWWdkRfMA00";
 
-        // コーチ（キャラクター）の表情データ定義
         const coachData = {
             male: { normal: '👨‍💼', thinking: '🤔', happy: '🙌' },
             female: { normal: '👩‍💼', thinking: '🧐', happy: '✨' },
             robot: { normal: '🤖', thinking: '⚙️', happy: '🎉' }
         };
-        let currentCoach = 'robot'; // 初期コーチ
+        let currentCoach = 'robot'; 
 
         const stagesData = [
-            // インデックス0にテスト用の簡単なステージを追加
             { title: "テスト用 (あと1マス)", board: [[5, 3, 4, 6, 7, 8, 9, 1, 2], [6, 7, 2, 1, 9, 5, 3, 4, 8], [1, 9, 8, 3, 4, 2, 5, 6, 7], [8, 5, 9, 7, 6, 1, 4, 2, 3], [4, 2, 6, 8, 5, 3, 7, 9, 1], [7, 1, 3, 9, 2, 4, 8, 5, 6], [9, 6, 1, 5, 3, 7, 2, 8, 4], [2, 8, 7, 4, 1, 9, 6, 3, 5], [3, 4, 5, 2, 8, 6, 1, 7, 0]] },
-            { title: "初級 1", board: [[5, 3, 0, 0, 7, 0, 0, 0, 0], [6, 0, 0, 1, 9, 5, 0, 0, 0], [0, 9, 8, 0, 0, 0, 0, 6, 0], [8, 0, 0, 0, 6, 0, 0, 0, 3], [4, 0, 0, 8, 0, 3, 0, 0, 1], [7, 0, 0, 0, 2, 0, 0, 0, 6], [0, 6, 0, 0, 0, 0, 2, 8, 0], [0, 0, 0, 4, 1, 9, 0, 0, 5], [0, 0, 0, 0, 8, 0, 0, 7, 9]] },
-            { title: "初級 2", board: [[5, 0, 4, 6, 0, 8, 9, 1, 2], [6, 7, 2, 0, 9, 0, 3, 4, 8], [1, 0, 0, 3, 4, 2, 5, 0, 7], [8, 5, 9, 7, 0, 1, 4, 2, 0], [0, 2, 0, 0, 5, 0, 0, 9, 0], [0, 1, 3, 9, 0, 4, 8, 5, 6], [9, 0, 1, 5, 3, 7, 0, 0, 4], [2, 8, 7, 0, 1, 0, 6, 3, 5], [3, 4, 5, 2, 0, 6, 1, 0, 9]] },
-            { title: "初級 3", board: [[0, 3, 4, 0, 7, 8, 9, 0, 0], [0, 0, 2, 1, 0, 5, 3, 4, 0], [1, 9, 0, 0, 4, 0, 5, 6, 7], [8, 0, 9, 7, 0, 1, 0, 2, 3], [4, 2, 0, 8, 0, 3, 0, 9, 1], [7, 1, 0, 9, 0, 4, 8, 0, 6], [9, 6, 1, 0, 3, 0, 0, 8, 4], [0, 8, 7, 4, 0, 9, 6, 0, 0], [0, 0, 5, 2, 8, 0, 1, 7, 0]] }
+            { title: "初級 1", board: [[7, 9, 0, 3, 0, 1, 6, 8, 4], [4, 2, 0, 5, 8, 0, 0, 7, 0], [0, 3, 8, 0, 4, 7, 9, 2, 5], [2, 0, 0, 1, 5, 0, 0, 0, 7], [9, 7, 0, 2, 3, 0, 8, 5, 6], [0, 0, 0, 9, 7, 0, 4, 1, 0], [8, 0, 2, 7, 9, 0, 5, 6, 0], [0, 6, 9, 0, 0, 2, 7, 3, 0], [3, 1, 0, 8, 0, 0, 2, 4, 9]] },
+            { title: "初級 2", board: [[1, 3, 4, 0, 5, 2, 0, 8, 0], [0, 8, 2, 0, 1, 0, 0, 3, 7], [5, 0, 9, 0, 0, 3, 2, 4, 0], [7, 1, 5, 0, 0, 4, 0, 0, 0], [0, 6, 0, 3, 0, 1, 0, 7, 0], [2, 4, 3, 8, 7, 5, 9, 1, 0], [4, 9, 1, 2, 3, 0, 7, 5, 8], [3, 2, 7, 5, 9, 0, 1, 0, 0], [0, 5, 0, 1, 0, 7, 0, 9, 2]] },
+            { title: "初級 3", board: [[8, 1, 7, 0, 3, 0, 9, 0, 0], [0, 4, 5, 0, 8, 7, 2, 3, 0], [6, 3, 2, 9, 5, 4, 0, 1, 0], [4, 8, 3, 5, 0, 0, 0, 7, 0], [0, 9, 6, 3, 0, 1, 4, 8, 0], [2, 7, 1, 8, 0, 9, 0, 6, 0], [0, 6, 9, 0, 2, 8, 0, 0, 3], [7, 5, 8, 4, 9, 0, 6, 0, 1], [3, 0, 4, 0, 1, 0, 8, 0, 0]] },
+            { title: "初級 4", board: [[0, 8, 7, 5, 1, 0, 2, 0, 3], [9, 3, 1, 8, 7, 0, 6, 0, 0], [4, 0, 2, 0, 0, 0, 0, 8, 0], [2, 4, 0, 0, 0, 3, 0, 0, 6], [7, 1, 0, 2, 5, 6, 9, 0, 4], [5, 6, 3, 4, 0, 1, 8, 0, 0], [8, 0, 4, 1, 6, 5, 3, 2, 0], [3, 2, 0, 9, 0, 7, 0, 1, 8], [1, 7, 0, 0, 2, 8, 4, 6, 0]] },
+            { title: "初級 5", board: [[5, 0, 1, 4, 3, 6, 8, 0, 0], [4, 8, 0, 0, 7, 0, 0, 1, 5], [0, 7, 0, 5, 8, 0, 6, 2, 4], [2, 0, 5, 8, 6, 0, 0, 0, 3], [8, 6, 3, 0, 0, 2, 4, 0, 7], [1, 9, 7, 0, 4, 5, 2, 0, 0], [6, 1, 4, 7, 5, 8, 9, 0, 0], [0, 0, 2, 9, 1, 0, 5, 6, 8], [9, 0, 0, 0, 0, 3, 7, 4, 0]] }
         ];
 
         const menuScreen = document.getElementById('menu-screen');
@@ -171,6 +168,7 @@
         const timerDisplay = document.getElementById('timer');
         const stageTitle = document.getElementById('stage-title');
         const aiCharacterArea = document.getElementById('ai-character');
+        const clearModal = document.getElementById('clear-modal');
 
         let currentOriginalBoard = [];
         let currentBoardData = [];
@@ -182,17 +180,27 @@
         let isCleared = false; 
         let isUnlimitedHints = false; 
 
-        // コーチ選択時の処理
+        function initMenu() {
+            const stageListDiv = document.querySelector('.stage-list');
+            stageListDiv.innerHTML = ""; 
+            
+            stagesData.forEach((stage, index) => {
+                const btn = document.createElement('button');
+                btn.className = index === 0 ? 'stage-btn test-btn' : 'stage-btn';
+                btn.innerText = stage.title;
+                btn.onclick = () => startStage(index);
+                stageListDiv.appendChild(btn);
+            });
+        }
+
         function selectCoach(coachType) {
             currentCoach = coachType;
             document.querySelectorAll('.coach-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`coach-${coachType}`).classList.add('active');
         }
 
-        // キャラクターの状態（表情）を更新する処理
         function setCoachState(state) {
             aiCharacterArea.innerText = coachData[currentCoach][state];
-            // 背景色なども連動して変える
             aiCharacterArea.className = 'ai-character-area ' + state;
         }
 
@@ -211,10 +219,9 @@
             hintBtn.classList.remove('upsell-mode');
             hintBtn.innerText = `AIにヒントを聞く (残り${hintsRemaining}回)`;
             hintArea.style.display = 'none';
+            clearModal.style.display = 'none';
 
-            // コーチを通常状態にリセット
             setCoachState('normal');
-
             createBoardUI();
             startTimer();
 
@@ -246,13 +253,11 @@
 
         function createBoardUI() {
             table.innerHTML = ""; 
-
             for (let r = 0; r < 9; r++) {
                 const tr = document.createElement('tr');
                 for (let c = 0; c < 9; c++) {
                     const td = document.createElement('td');
                     td.id = `cell-${r}-${c}`;
-                    
                     if (currentBoardData[r][c] !== 0) {
                         td.innerText = currentBoardData[r][c];
                         td.classList.add('fixed');
@@ -267,38 +272,29 @@
         }
 
         function selectCell(r, c) {
-            if (isCleared) return;
-            if (currentOriginalBoard[r][c] !== 0) return; 
-
+            if (isCleared || currentOriginalBoard[r][c] !== 0) return; 
             document.querySelectorAll('.selected').forEach(cell => cell.classList.remove('selected'));
             clearHighlights();
-
             selectedCell = { r, c };
             document.getElementById(`cell-${r}-${c}`).classList.add('selected');
         }
 
         function inputNumber(num) {
             if (isCleared || !selectedCell) return;
-            
             const r = selectedCell.r;
             const c = selectedCell.c;
-            
             currentBoardData[r][c] = num;
-            const td = document.getElementById(`cell-${r}-${c}`);
-            td.innerText = num === 0 ? '' : num;
-            
+            document.getElementById(`cell-${r}-${c}`).innerText = num === 0 ? '' : num;
             checkBoardErrors();
             checkClear();
         }
 
         function checkBoardErrors() {
             document.querySelectorAll('.cell, td').forEach(cell => cell.classList.remove('error'));
-
             for (let r = 0; r < 9; r++) {
                 for (let c = 0; c < 9; c++) {
                     const val = currentBoardData[r][c];
                     if (val === 0) continue;
-
                     let isError = false;
                     for (let i = 0; i < 9; i++) {
                         if (i !== c && currentBoardData[r][i] === val) isError = true;
@@ -323,7 +319,6 @@
         function checkClear() {
             let isFull = true;
             let hasError = document.querySelectorAll('.error').length > 0;
-
             for (let r = 0; r < 9; r++) {
                 for (let c = 0; c < 9; c++) {
                     if (currentBoardData[r][c] === 0) isFull = false;
@@ -336,27 +331,41 @@
                 document.querySelectorAll('.selected').forEach(cell => cell.classList.remove('selected'));
                 selectedCell = null;
                 
-                // コーチを「クリア（喜ぶ）」状態に変更
                 setCoachState('happy');
 
-                const clearTime = timerDisplay.innerText;
-                
                 setTimeout(() => {
-                    alert(`おめでとうございます！クリアです！\nクリアタイム: ${clearTime}`);
-                    backToMenu();
-                }, 100);
+                    document.getElementById('final-time').innerText = timerDisplay.innerText;
+                    clearModal.style.display = 'flex';
+                }, 1000); 
             }
         }
 
+        function closeClearModal() {
+            clearModal.style.display = 'none';
+            backToMenu();
+        }
+
+        // ★ 決済ロジックをStripeに連携させました ★
         async function getHint() {
             if (hintsRemaining <= 0 && !isUnlimitedHints) {
-                const wantsToBuy = confirm("1ステージの無料ヒント枠（3回）を使い切りました。\n\n「AIヒント使い放題パック（100円）」を購入して、このステージの続きをAIと一緒に解きますか？\n\n※OKを押すと決済完了テストになります。");
+                const wantsToBuy = confirm("1ステージの無料ヒント枠（3回）を使い切りました。\n\n「AIヒント使い放題パック（100円）」を購入して、このステージの続きをAIと一緒に解きますか？\n\n※「OK」を押すとStripeの決済画面（テスト用）が開きます。");
                 
                 if (wantsToBuy) {
-                    isUnlimitedHints = true;
-                    hintBtn.classList.remove('upsell-mode');
-                    hintBtn.innerText = "AIにヒントを聞く (使い放題✨)";
-                    alert("【テスト】決済が完了しました！ヒントが使い放題になりました。");
+                    // 1. Stripeの決済ページを別タブで開く
+                    window.open(STRIPE_PAYMENT_LINK, '_blank');
+                    
+                    // 2. 元の画面で決済が完了したか確認する（プロトタイプ用の疑似判定）
+                    setTimeout(() => {
+                        const isPaid = confirm("【プロトタイプ用テスト】\n別タブでの決済は完了しましたか？\n（※「OK」を押すと使い放題が解放されます）");
+                        if (isPaid) {
+                            isUnlimitedHints = true;
+                            hintBtn.classList.remove('upsell-mode');
+                            hintBtn.innerText = "AIにヒントを聞く (使い放題✨)";
+                            alert("ありがとうございます！ヒントが使い放題になりました！");
+                        }
+                    }, 1000); // 別タブが開いた1秒後に確認を出す
+                    
+                    return; // 一旦ここで処理を止める
                 } else {
                     return;
                 }
@@ -369,7 +378,6 @@
             hintArea.innerText = "";
             clearHighlights();
             
-            // コーチを「思考中」状態に変更
             setCoachState('thinking');
 
             try {
@@ -395,8 +403,6 @@
             } finally {
                 loadingDisplay.style.display = 'none';
                 hintBtn.disabled = false;
-                
-                // ヒント取得が完了したらコーチを「通常」状態に戻す
                 setCoachState('normal');
                 
                 if (isUnlimitedHints) {
@@ -415,10 +421,8 @@
             const c = parseInt(hint.target_col) - 1;
             hintArea.innerText = `コーチのヒント：\n(${r+1}行, ${c+1}列) に「${hint.answer_number}」が入ります。\n理由: ${hint.explanation}`;
             hintArea.style.display = 'block';
-            
             const targetCell = document.getElementById(`cell-${r}-${c}`);
             targetCell.classList.add('highlight');
-            
             selectCell(r, c);
         }
 
@@ -427,6 +431,8 @@
         }
 
         hintBtn.addEventListener('click', getHint);
+
+        window.onload = initMenu;
 
     </script>
 </body>
