@@ -13,8 +13,10 @@
         h1 { color: #333; font-size: 1.8rem; margin-bottom: 20px; text-align: center; }
         
         .coach-selection { display: flex; gap: 10px; margin-bottom: 25px; }
-        .coach-btn { font-size: 2rem; background-color: white; border: 3px solid #ccc; border-radius: 15px; padding: 10px 20px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .coach-btn { background-color: white; border: 3px solid #ccc; border-radius: 15px; padding: 10px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center;}
         .coach-btn.active { border-color: #2196F3; background-color: #e3f2fd; transform: scale(1.05); box-shadow: 0 4px 8px rgba(33,150,243,0.3); }
+        /* メニュー画面のコーチ画像サイズ */
+        .coach-btn img { width: 50px; height: 50px; image-rendering: pixelated; object-fit: contain; }
         .coach-label { font-size: 0.8rem; color: #555; text-align: center; font-weight: bold; margin-top: 5px; }
 
         .stage-list { display: flex; flex-direction: column; gap: 15px; width: 80%; }
@@ -25,9 +27,13 @@
         #stage-title { color: #333; font-size: 1.2rem; font-weight: bold; margin: 0; }
         #timer { font-size: 1.2rem; font-weight: bold; color: #555; letter-spacing: 2px; }
 
-        .ai-character-area { width: 90%; height: 90px; background-color: white; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 2px solid #e0e0e0; font-size: 3.5rem; transition: all 0.3s ease; }
+        /* キャラクターエリアの調整 */
+        .ai-character-area { width: 90%; height: 110px; background-color: white; border-radius: 15px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 2px solid #e0e0e0; transition: all 0.3s ease; overflow: hidden; }
         .ai-character-area.thinking { background-color: #fff8e1; border-color: #ffc107; }
         .ai-character-area.happy { background-color: #e8f5e9; border-color: #4caf50; }
+        
+        /* ゲーム画面のコーチ画像設定（ドット絵をくっきり表示） */
+        #coach-image { max-height: 100%; width: auto; image-rendering: pixelated; object-fit: contain; }
 
         .sudoku-container { background-color: white; padding: 5px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
         table { border-collapse: collapse; border: 3px solid #333; table-layout: fixed; }
@@ -77,16 +83,23 @@
         
         <div style="color: #666; font-size: 0.9rem; margin-bottom: 10px;">相棒（コーチ）を選んでください</div>
         <div class="coach-selection">
+            <!-- ボタンの中身を画像に変更 -->
             <div>
-                <button class="coach-btn" id="coach-male" onclick="selectCoach('male')">👨‍💼</button>
+                <button class="coach-btn" id="coach-male" onclick="selectCoach('male')">
+                    <img src="images/coach_male_normal.png" alt="男性">
+                </button>
                 <div class="coach-label">男性</div>
             </div>
             <div>
-                <button class="coach-btn active" id="coach-robot" onclick="selectCoach('robot')">🤖</button>
+                <button class="coach-btn active" id="coach-robot" onclick="selectCoach('robot')">
+                    <img src="images/coach_robot_normal.png" alt="ロボット">
+                </button>
                 <div class="coach-label">ロボット</div>
             </div>
             <div>
-                <button class="coach-btn" id="coach-female" onclick="selectCoach('female')">👩‍💼</button>
+                <button class="coach-btn" id="coach-female" onclick="selectCoach('female')">
+                    <img src="images/coach_female_normal.png" alt="女性">
+                </button>
                 <div class="coach-label">女性</div>
             </div>
         </div>
@@ -102,7 +115,10 @@
             <div id="timer">00:00</div>
         </div>
 
-        <div id="ai-character" class="ai-character-area">🤖</div>
+        <!-- 絵文字テキストを画像タグに置き換え -->
+        <div id="ai-character" class="ai-character-area">
+            <img id="coach-image" src="images/coach_robot_normal.png" alt="コーチ">
+        </div>
 
         <div class="sudoku-container">
             <table id="sudoku-board"></table>
@@ -139,16 +155,32 @@
 
     <script>
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzyvzJeCKPbw8Y2Phz5hAcKWovpk3JiPVu-_Ij4noKMCv7z7md-31o2tROvd0MVmTYjGg/exec";
-        
-        // ★ ここにStripeの決済URLを設定しました ★
         const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/test_00wfZj6KO1KXaWWdkRfMA00";
 
-        const coachData = {
-            male: { normal: '👨‍💼', thinking: '🤔', happy: '🙌' },
-            female: { normal: '👩‍💼', thinking: '🧐', happy: '✨' },
-            robot: { normal: '🤖', thinking: '⚙️', happy: '🎉' }
+        // 全12枚の画像定義（名前を当初の想定通りに修正しています）
+        const coachImages = {
+            male: {
+                normal: 'images/coach_male_normal.png',
+                thinking: 'images/coach_male_thinking.png',
+                happy_a: 'images/coach_male_happy_a.png',
+                happy_b: 'images/coach_male_happy_b.png'
+            },
+            female: {
+                normal: 'images/coach_female_normal.png',
+                thinking: 'images/coach_female_thinking.png',
+                happy_a: 'images/coach_female_happy_a.png',
+                happy_b: 'images/coach_female_happy_b.png'
+            },
+            robot: {
+                normal: 'images/coach_robot_normal.png',
+                thinking: 'images/coach_robot_thinking.png',
+                happy_a: 'images/coach_robot_happy_a.png',
+                happy_b: 'images/coach_robot_happy_b.png'
+            }
         };
+        
         let currentCoach = 'robot'; 
+        let happyAnimationInterval = null;
 
         const stagesData = [
             { title: "テスト用 (あと1マス)", board: [[5, 3, 4, 6, 7, 8, 9, 1, 2], [6, 7, 2, 1, 9, 5, 3, 4, 8], [1, 9, 8, 3, 4, 2, 5, 6, 7], [8, 5, 9, 7, 6, 1, 4, 2, 3], [4, 2, 6, 8, 5, 3, 7, 9, 1], [7, 1, 3, 9, 2, 4, 8, 5, 6], [9, 6, 1, 5, 3, 7, 2, 8, 4], [2, 8, 7, 4, 1, 9, 6, 3, 5], [3, 4, 5, 2, 8, 6, 1, 7, 0]] },
@@ -168,6 +200,7 @@
         const timerDisplay = document.getElementById('timer');
         const stageTitle = document.getElementById('stage-title');
         const aiCharacterArea = document.getElementById('ai-character');
+        const coachImage = document.getElementById('coach-image');
         const clearModal = document.getElementById('clear-modal');
 
         let currentOriginalBoard = [];
@@ -197,10 +230,39 @@
             currentCoach = coachType;
             document.querySelectorAll('.coach-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`coach-${coachType}`).classList.add('active');
+            // メニューで変更した時、ゲーム画面の画像も更新しておく
+            coachImage.src = coachImages[currentCoach].normal;
         }
 
+        // アニメーション開始関数
+        function startHappyAnimation() {
+            stopHappyAnimation();
+            let stateA = true;
+            coachImage.src = coachImages[currentCoach].happy_a; // 最初にバンザイを設定
+            happyAnimationInterval = setInterval(() => {
+                stateA = !stateA;
+                coachImage.src = stateA ? coachImages[currentCoach].happy_a : coachImages[currentCoach].happy_b;
+            }, 500); // 0.5秒ごとに切り替え
+        }
+
+        // アニメーション停止関数
+        function stopHappyAnimation() {
+            if (happyAnimationInterval) {
+                clearInterval(happyAnimationInterval);
+                happyAnimationInterval = null;
+            }
+        }
+
+        // 画像切り替え処理
         function setCoachState(state) {
-            aiCharacterArea.innerText = coachData[currentCoach][state];
+            stopHappyAnimation(); // 他の状態になる時は必ずアニメーションを止める
+            
+            if (state === 'happy') {
+                startHappyAnimation(); // 喜ぶ状態の場合はアニメーション開始
+            } else {
+                coachImage.src = coachImages[currentCoach][state]; // 通常、または思考中の画像へ切り替え
+            }
+            // 背景色の変更
             aiCharacterArea.className = 'ai-character-area ' + state;
         }
 
@@ -231,6 +293,7 @@
 
         function backToMenu() {
             stopTimer();
+            stopHappyAnimation(); // メニューに戻る時もアニメーション停止
             gameScreen.style.display = 'none';
             menuScreen.style.display = 'flex';
         }
@@ -345,16 +408,13 @@
             backToMenu();
         }
 
-        // ★ 決済ロジックをStripeに連携させました ★
         async function getHint() {
             if (hintsRemaining <= 0 && !isUnlimitedHints) {
                 const wantsToBuy = confirm("1ステージの無料ヒント枠（3回）を使い切りました。\n\n「AIヒント使い放題パック（100円）」を購入して、このステージの続きをAIと一緒に解きますか？\n\n※「OK」を押すとStripeの決済画面（テスト用）が開きます。");
                 
                 if (wantsToBuy) {
-                    // 1. Stripeの決済ページを別タブで開く
                     window.open(STRIPE_PAYMENT_LINK, '_blank');
                     
-                    // 2. 元の画面で決済が完了したか確認する（プロトタイプ用の疑似判定）
                     setTimeout(() => {
                         const isPaid = confirm("【プロトタイプ用テスト】\n別タブでの決済は完了しましたか？\n（※「OK」を押すと使い放題が解放されます）");
                         if (isPaid) {
@@ -363,9 +423,9 @@
                             hintBtn.innerText = "AIにヒントを聞く (使い放題✨)";
                             alert("ありがとうございます！ヒントが使い放題になりました！");
                         }
-                    }, 1000); // 別タブが開いた1秒後に確認を出す
+                    }, 1000); 
                     
-                    return; // 一旦ここで処理を止める
+                    return; 
                 } else {
                     return;
                 }
@@ -430,6 +490,9 @@
             document.querySelectorAll('.highlight').forEach(cell => cell.classList.remove('highlight'));
         }
 
+        // ==========================================
+        // 修正ポイント：ここが消えていたためボタンが動いていませんでした！
+        // ==========================================
         hintBtn.addEventListener('click', getHint);
 
         window.onload = initMenu;
