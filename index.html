@@ -43,16 +43,19 @@
         .stage-btn.test-btn { background-color: #f39c12; border-color: #d35400; box-shadow: 0 5px 0px #d35400; }
         .stage-btn.test-btn:active { box-shadow: 0 0px 0px #d35400; }
         
-        .header-area { display: flex; justify-content: space-between; align-items: center; width: 90%; margin-bottom: 15px; background-color: #fff; padding: 10px 15px; border-radius: 10px; border: 3px solid #ccc; box-sizing: border-box; box-shadow: 0 4px 0px rgba(0,0,0,0.05); }
+        /* ゲーム画面上部のレイアウト（PC用） */
+        .top-info-wrapper { display: flex; flex-direction: column; width: 90%; gap: 15px; margin-bottom: 20px; }
+        
+        .header-area { display: flex; justify-content: space-between; align-items: center; background-color: #fff; padding: 10px 15px; border-radius: 10px; border: 3px solid #ccc; box-sizing: border-box; box-shadow: 0 4px 0px rgba(0,0,0,0.05); }
         #stage-title { color: #d35400; font-size: 1.3rem; font-weight: bold; margin: 0; }
         #timer { font-size: 1.4rem; font-weight: bold; color: #34495e; letter-spacing: 2px; }
 
         /* コーチエリア */
         .ai-character-area { 
-            width: 90%; height: 120px; background-color: #fff; border-radius: 15px; 
-            display: flex; align-items: flex-end; justify-content: center; margin-bottom: 20px; 
+            width: 100%; height: 120px; background-color: #fff; border-radius: 15px; 
+            display: flex; align-items: flex-end; justify-content: center; 
             border: 4px solid #7f8c8d; box-shadow: 0 6px 0px #7f8c8d; 
-            transition: all 0.3s ease; overflow: hidden; position: relative;
+            transition: all 0.3s ease; overflow: hidden; position: relative; box-sizing: border-box;
         }
         .ai-character-area::before {
             content: ''; position: absolute; top: 5px; left: 5px; right: 5px; bottom: 5px;
@@ -91,7 +94,7 @@
         td:first-child { border-left: 4px solid #2c3e50; }
         tr:first-child td { border-top: 4px solid #2c3e50; }
 
-        /* テンキー */
+        /* テンキー（5列x2行に収める） */
         .numpad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; width: 95%; margin-bottom: 20px; }
         .num-btn { 
             background-color: #fdfefe; border: 3px solid #95a5a6; padding: 12px 0; 
@@ -100,10 +103,12 @@
             font-family: 'M PLUS Rounded 1c', sans-serif;
         }
         .num-btn:active { transform: translateY(5px); box-shadow: 0 0px 0px #95a5a6; }
+        
+        /* マスを空にするボタン（1マス分に圧縮） */
         .num-btn.delete-btn { 
-            grid-column: span 5; background-color: #e74c3c; color: white; 
-            border-color: #c0392b; box-shadow: 0 5px 0px #c0392b; font-size: 1.3rem; 
-            text-shadow: 1px 1px 0px #222; letter-spacing: 1px;
+            background-color: #e74c3c; color: white; 
+            border-color: #c0392b; box-shadow: 0 5px 0px #c0392b; font-size: 1.4rem; 
+            text-shadow: 1px 1px 0px #222; 
         }
         .num-btn.delete-btn:active { box-shadow: 0 0px 0px #c0392b; }
 
@@ -151,35 +156,42 @@
         .modal-btn:active { transform: translateY(5px); box-shadow: 0 0px 0px #27ae60; }
 
         /* =========================================
-           📱 スマホ用レスポンシブ対応（1画面に収める設定） 
-           画面幅が狭い、または縦幅が短いスマホ端末で適用されます
+           📱 スマホ用レスポンシブ対応（1画面フルフィット）
            ========================================= */
         @media screen and (max-width: 500px), screen and (max-height: 850px) {
             body { padding-top: 5px; }
-            .header-area { margin-bottom: 8px; padding: 6px 12px; }
-            #stage-title, #timer { font-size: 1.1rem; }
             
-            /* コーチエリアの高さを少し縮小 */
-            .ai-character-area { height: 85px; margin-bottom: 12px; }
+            /* ヘッダーを横並びに！左に情報、右にコーチ */
+            .top-info-wrapper { flex-direction: row; align-items: stretch; margin-bottom: 10px; width: 95%; gap: 10px; }
             
-            /* 盤面とマスのサイズをスマホに合わせて縮小 */
-            .sudoku-container { padding: 5px; margin-bottom: 15px; border-width: 3px; }
+            .header-area { flex: 1; flex-direction: column; justify-content: center; padding: 6px; border-width: 3px; box-shadow: 0 3px 0px rgba(0,0,0,0.05); }
+            #stage-title { font-size: 1rem; margin-bottom: 4px; text-align: center; }
+            #timer { font-size: 1.2rem; text-align: center; }
+            
+            /* コーチを右側の正方形枠に */
+            .ai-character-area { width: 85px; height: 85px; flex-shrink: 0; border-width: 3px; box-shadow: 0 4px 0px #7f8c8d; border-radius: 12px; }
+            .ai-character-area::before { top: 3px; left: 3px; right: 3px; bottom: 3px; }
+            .ai-character-area.thinking { box-shadow: 0 4px 0px #f39c12; }
+            .ai-character-area.happy { box-shadow: 0 4px 0px #27ae60; }
+            
+            /* 盤面を圧縮 */
+            .sudoku-container { padding: 6px; margin-bottom: 12px; border-width: 3px; box-shadow: 0 4px 0px #bdc3c7; }
             table { border-width: 3px; }
-            td { width: 35px; height: 35px; max-width: 35px; max-height: 35px; font-size: 1.5rem; }
+            td { width: 34px; height: 34px; max-width: 34px; max-height: 34px; font-size: 1.5rem; }
             td.selected { font-size: 1.6rem; border-width: 2px; }
             
-            /* テンキーの隙間と高さを圧縮 */
-            .numpad { gap: 6px; margin-bottom: 15px; width: 98%; }
-            .num-btn { padding: 8px 0; font-size: 1.4rem; border-width: 2px; box-shadow: 0 4px 0px #95a5a6; }
+            /* テンキーの圧縮 */
+            .numpad { gap: 6px; margin-bottom: 12px; width: 98%; }
+            .num-btn { padding: 6px 0; font-size: 1.4rem; border-width: 2px; box-shadow: 0 4px 0px #95a5a6; border-radius: 8px; }
             .num-btn:active { transform: translateY(4px); box-shadow: 0 0px 0px #95a5a6; }
-            .num-btn.delete-btn { padding: 8px 0; font-size: 1.1rem; box-shadow: 0 4px 0px #c0392b; }
-            .num-btn.delete-btn:active { box-shadow: 0 0px 0px #c0392b; }
+            .num-btn.delete-btn { font-size: 1.2rem; box-shadow: 0 4px 0px #c0392b; }
             
-            /* コントロールボタン類の余白を圧縮 */
-            .controls { gap: 10px; margin-bottom: 15px; width: 98%; }
-            #hint-btn { padding: 12px; font-size: 1.1rem; border-width: 3px; box-shadow: 0 4px 0px #f39c12; }
+            /* コントロールボタン類の圧縮 */
+            .controls { gap: 10px; margin-bottom: 10px; width: 98%; }
+            #hint-btn { padding: 12px; font-size: 1.1rem; border-width: 3px; box-shadow: 0 4px 0px #f39c12; border-radius: 20px; }
             #hint-btn:active { transform: translateY(4px); box-shadow: 0 0px 0px #f39c12; }
-            .back-btn { padding: 10px; font-size: 0.9rem; width: 90%; margin-bottom: 5px; }
+            .back-btn { padding: 10px; font-size: 0.9rem; width: 85%; margin-bottom: 0; border-width: 3px; box-shadow: 0 3px 0px #7f8c8d; }
+            .back-btn:active { transform: translateY(3px); box-shadow: 0 0px 0px #7f8c8d; }
         }
     </style>
 </head>
@@ -217,13 +229,16 @@
 
     <!-- ゲーム画面 -->
     <div id="game-screen" style="display: none;">
-        <div class="header-area">
-            <div id="stage-title"></div>
-            <div id="timer">00:00</div>
-        </div>
-
-        <div id="ai-character" class="ai-character-area">
-            <img id="coach-image" src="images/coach_robot_normal.png" alt="コーチ">
+        
+        <!-- 新設：ヘッダーとコーチをまとめるラッパー -->
+        <div class="top-info-wrapper">
+            <div class="header-area">
+                <div id="stage-title"></div>
+                <div id="timer">00:00</div>
+            </div>
+            <div id="ai-character" class="ai-character-area">
+                <img id="coach-image" src="images/coach_robot_normal.png" alt="コーチ">
+            </div>
         </div>
 
         <div class="sudoku-container">
@@ -240,7 +255,8 @@
             <button class="num-btn" onclick="inputNumber(7)">7</button>
             <button class="num-btn" onclick="inputNumber(8)">8</button>
             <button class="num-btn" onclick="inputNumber(9)">9</button>
-            <button class="num-btn delete-btn" onclick="inputNumber(0)">マスを空にする</button>
+            <!-- 9の右隣に「消」ボタンを配置 -->
+            <button class="num-btn delete-btn" onclick="inputNumber(0)">消</button>
         </div>
 
         <div class="controls">
