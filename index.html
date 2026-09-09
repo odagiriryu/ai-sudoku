@@ -4,75 +4,150 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AIコーチ付きナンプレ</title>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700&display=swap" rel="stylesheet">
     <style>
-        /* CSS: 画面の見た目の設定 */
-        body { font-family: sans-serif; background-color: #f0f8ff; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; margin: 0; padding-top: 10px; touch-action: manipulation; }
+        body { 
+            font-family: 'M PLUS Rounded 1c', sans-serif; 
+            background-color: #fdf6e3; 
+            color: #4a4a4a;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; 
+            min-height: 100vh; margin: 0; padding-top: 15px; touch-action: manipulation; 
+        }
         
         #menu-screen, #game-screen { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; }
         
-        h1 { color: #333; font-size: 1.8rem; margin-bottom: 20px; text-align: center; }
+        h1 { color: #d35400; font-size: 2rem; margin-bottom: 20px; text-align: center; text-shadow: 2px 2px 0px #f39c12; letter-spacing: 2px; }
         
-        .coach-selection { display: flex; gap: 10px; margin-bottom: 25px; }
-        .coach-btn { background-color: white; border: 3px solid #ccc; border-radius: 15px; padding: 10px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center;}
-        .coach-btn.active { border-color: #2196F3; background-color: #e3f2fd; transform: scale(1.05); box-shadow: 0 4px 8px rgba(33,150,243,0.3); }
-        /* メニュー画面のコーチ画像サイズ */
-        .coach-btn img { width: 50px; height: 50px; image-rendering: pixelated; object-fit: contain; }
-        .coach-label { font-size: 0.8rem; color: #555; text-align: center; font-weight: bold; margin-top: 5px; }
+        .section-title { color: #666; font-size: 1.1rem; margin-bottom: 15px; font-weight: bold; text-align: center; border-bottom: 3px dashed #ccc; padding-bottom: 5px; width: 80%; }
 
-        .stage-list { display: flex; flex-direction: column; gap: 15px; width: 80%; }
-        .stage-btn { background-color: #2196F3; color: white; border: none; padding: 15px; font-size: 1.2rem; font-weight: bold; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .stage-btn.test-btn { background-color: #ff9800; } 
-        
-        .header-area { display: flex; justify-content: space-between; align-items: center; width: 90%; margin-bottom: 10px; }
-        #stage-title { color: #333; font-size: 1.2rem; font-weight: bold; margin: 0; }
-        #timer { font-size: 1.2rem; font-weight: bold; color: #555; letter-spacing: 2px; }
+        /* キャラクター選択ボタン（余白を消して枠いっぱいに拡大） */
+        .coach-selection { display: flex; gap: 15px; margin-bottom: 30px; width: 90%; justify-content: center; }
+        .coach-btn { 
+            background-color: #fff; border: 4px solid #bdc3c7; border-radius: 12px; padding: 0; overflow: hidden; cursor: pointer; 
+            transition: all 0.2s; box-shadow: 0 4px 0px #bdc3c7; display: flex; align-items: center; justify-content: center;
+            flex: 1; max-width: 100px; height: 100px;
+        }
+        .coach-btn:active { transform: translateY(4px); box-shadow: 0 0px 0px #bdc3c7; }
+        .coach-btn.active { border-color: #e74c3c; background-color: #ffeaea; box-shadow: 0 4px 0px #e74c3c; transform: translateY(-2px); }
+        .coach-btn img { width: 100%; height: 100%; image-rendering: pixelated; object-fit: contain; transform: scale(1.5); }
+        .coach-label { font-size: 1.1rem; color: #4a4a4a; text-align: center; font-weight: bold; margin-top: 8px; }
 
-        /* キャラクターエリアの調整 */
-        .ai-character-area { width: 90%; height: 110px; background-color: white; border-radius: 15px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 2px solid #e0e0e0; transition: all 0.3s ease; overflow: hidden; }
-        .ai-character-area.thinking { background-color: #fff8e1; border-color: #ffc107; }
-        .ai-character-area.happy { background-color: #e8f5e9; border-color: #4caf50; }
+        .stage-list { display: flex; flex-direction: column; gap: 15px; width: 85%; }
+        .stage-btn { 
+            background-color: #3498db; color: white; border: 4px solid #2980b9; padding: 15px; 
+            font-size: 1.3rem; font-weight: bold; border-radius: 12px; cursor: pointer; 
+            box-shadow: 0 5px 0px #2980b9; text-shadow: 1px 1px 0px #222; transition: all 0.1s; letter-spacing: 1px;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+        }
+        .stage-btn:active { transform: translateY(5px); box-shadow: 0 0px 0px #2980b9; }
+        .stage-btn.test-btn { background-color: #f39c12; border-color: #d35400; box-shadow: 0 5px 0px #d35400; }
+        .stage-btn.test-btn:active { box-shadow: 0 0px 0px #d35400; }
         
-        /* ゲーム画面のコーチ画像設定（ドット絵をくっきり表示） */
-        #coach-image { max-height: 100%; width: auto; image-rendering: pixelated; object-fit: contain; }
+        .header-area { display: flex; justify-content: space-between; align-items: center; width: 90%; margin-bottom: 15px; background-color: #fff; padding: 10px 15px; border-radius: 10px; border: 3px solid #ccc; box-sizing: border-box; box-shadow: 0 4px 0px rgba(0,0,0,0.05); }
+        #stage-title { color: #d35400; font-size: 1.3rem; font-weight: bold; margin: 0; }
+        #timer { font-size: 1.4rem; font-weight: bold; color: #34495e; letter-spacing: 2px; }
 
-        .sudoku-container { background-color: white; padding: 5px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
-        table { border-collapse: collapse; border: 3px solid #333; table-layout: fixed; }
-        td { border: 1px solid #ccc; width: 35px; height: 35px; max-width: 35px; max-height: 35px; box-sizing: border-box; text-align: center; vertical-align: middle; font-size: 1.4rem; font-weight: bold; color: #333; cursor: pointer; padding: 0; user-select: none; line-height: 1; }
+        /* コーチエリア */
+        .ai-character-area { 
+            width: 90%; height: 120px; background-color: #fff; border-radius: 15px; 
+            display: flex; align-items: flex-end; justify-content: center; margin-bottom: 20px; 
+            border: 4px solid #7f8c8d; box-shadow: 0 6px 0px #7f8c8d; 
+            transition: all 0.3s ease; overflow: hidden; position: relative;
+        }
+        .ai-character-area::before {
+            content: ''; position: absolute; top: 5px; left: 5px; right: 5px; bottom: 5px;
+            border: 2px dashed #d5dbdb; border-radius: 10px; pointer-events: none;
+        }
+        .ai-character-area.thinking { background-color: #fff8e1; border-color: #f39c12; box-shadow: 0 6px 0px #f39c12; }
+        .ai-character-area.thinking::before { border-color: #fdebd0; }
+        .ai-character-area.happy { background-color: #e8f5e9; border-color: #27ae60; box-shadow: 0 6px 0px #27ae60; }
+        .ai-character-area.happy::before { border-color: #d5f5e3; }
         
-        td.fixed { color: #1565c0; background-color: #f5f5f5; cursor: default; }
-        td.selected { background-color: #bbdefb; border: 2px solid #2196f3; }
-        td.error { color: #d32f2f; background-color: #ffebee; }
-        td.highlight { background-color: #ffe082 !important; border: 2px solid #ffa000 !important; }
-        
-        td:nth-child(3n) { border-right: 2px solid #333; }
-        tr:nth-child(3n) td { border-bottom: 2px solid #333; }
-        td:last-child { border-right: 3px solid #333; }
-        tr:last-child td { border-bottom: 3px solid #333; }
-        td:first-child { border-left: 3px solid #333; }
-        tr:first-child td { border-top: 3px solid #333; }
+        /* プレイ画面のコーチ画像：はみ出さないように元の設定に戻しました */
+        #coach-image { max-height: 100%; width: auto; image-rendering: pixelated; object-fit: contain; z-index: 1; }
 
-        .numpad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; width: 90%; margin-bottom: 15px; }
-        .num-btn { background-color: #eceff1; border: 1px solid #cfd8dc; padding: 12px 0; font-size: 1.2rem; font-weight: bold; border-radius: 8px; color: #333; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .num-btn:active { background-color: #cfd8dc; transform: translateY(2px); box-shadow: none; }
-        .num-btn.delete-btn { grid-column: span 5; background-color: #ffe0b2; color: #e65100; border-color: #ffcc80; }
+        .sudoku-container { 
+            background-color: #ecf0f1; padding: 8px; border-radius: 12px; 
+            box-shadow: 0 6px 0px #bdc3c7; border: 4px solid #7f8c8d; margin-bottom: 25px; 
+        }
+        table { border-collapse: collapse; border: 4px solid #2c3e50; table-layout: fixed; background-color: #fff; margin: 0 auto; }
+        td { 
+            border: 1px solid #bdc3c7; width: 42px; height: 42px; max-width: 42px; max-height: 42px; 
+            box-sizing: border-box; text-align: center; vertical-align: middle; 
+            font-size: 1.8rem; font-weight: bold; color: #2c3e50; cursor: pointer; padding: 0; 
+            user-select: none; line-height: 1; transition: background-color 0.1s; 
+        }
 
-        .controls { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 90%; }
-        #hint-area { background-color: #fff9c4; border-left: 5px solid #fbc02d; padding: 15px; border-radius: 5px; width: 100%; box-sizing: border-box; color: #555; font-size: 0.9rem; line-height: 1.4; display: none; }
-        #loading { display: none; color: #fbc02d; font-weight: bold; font-size: 0.9rem; }
-        
-        #hint-btn { background-color: #fbc02d; color: white; border: none; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 25px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); width: 100%; }
-        #hint-btn:disabled { background-color: #e0e0e0; cursor: not-allowed; box-shadow: none; color: #888; }
-        #hint-btn.upsell-mode { background-color: #ff9800; animation: pulse 2s infinite; }
-        
-        .back-btn { background-color: transparent; color: #757575; border: none; padding: 10px; font-size: 0.9rem; cursor: pointer; text-decoration: underline; margin-bottom: 20px;}
+        td.fixed { color: #2980b9; background-color: #ebf5fb; cursor: default; }
+        td.selected { background-color: #fff3e0; border: 3px solid #e67e22; font-size: 2rem; color: #d35400; z-index: 10; position: relative; }
+        td.error { color: #e74c3c; background-color: #fdedec; font-weight: 900; animation: shake 0.3s; }
+        @keyframes shake { 0% {transform: translateX(0);} 25% {transform: translateX(-3px);} 50% {transform: translateX(3px);} 75% {transform: translateX(-3px);} 100% {transform: translateX(0);} }
+        td.highlight { background-color: #f1c40f !important; border: 3px solid #f39c12 !important; position: relative; z-index: 5; }
 
-        #clear-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background-color: white; padding: 30px; border-radius: 20px; text-align: center; width: 80%; max-width: 300px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-        .modal-title { font-size: 1.8rem; color: #ff9800; margin-top: 0; margin-bottom: 10px; font-weight: bold; }
-        .modal-time { font-size: 1.2rem; color: #555; margin-bottom: 25px; }
-        .modal-btn { background-color: #4CAF50; color: white; border: none; padding: 12px 24px; font-size: 1.1rem; font-weight: bold; border-radius: 25px; cursor: pointer; width: 100%; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .modal-btn:hover { background-color: #43a047; }
+        td:nth-child(3n) { border-right: 3px solid #2c3e50; }
+        tr:nth-child(3n) td { border-bottom: 3px solid #2c3e50; }
+        td:last-child { border-right: 4px solid #2c3e50; }
+        tr:last-child td { border-bottom: 4px solid #2c3e50; }
+        td:first-child { border-left: 4px solid #2c3e50; }
+        tr:first-child td { border-top: 4px solid #2c3e50; }
+
+        .numpad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; width: 95%; margin-bottom: 20px; }
+        .num-btn { 
+            background-color: #fdfefe; border: 3px solid #95a5a6; padding: 12px 0; 
+            font-size: 1.6rem; font-weight: bold; border-radius: 10px; color: #2c3e50; 
+            cursor: pointer; box-shadow: 0 5px 0px #95a5a6; transition: all 0.1s; 
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+        }
+        .num-btn:active { transform: translateY(5px); box-shadow: 0 0px 0px #95a5a6; }
+        .num-btn.delete-btn { 
+            grid-column: span 5; background-color: #e74c3c; color: white; 
+            border-color: #c0392b; box-shadow: 0 5px 0px #c0392b; font-size: 1.3rem; 
+            text-shadow: 1px 1px 0px #222; letter-spacing: 1px;
+        }
+        .num-btn.delete-btn:active { box-shadow: 0 0px 0px #c0392b; }
+
+        .controls { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 95%; margin-bottom: 30px; }
+        #hint-area { 
+            background-color: #fef9e7; border: 4px solid #f1c40f; padding: 15px; border-radius: 12px; 
+            width: 100%; box-sizing: border-box; color: #333; font-size: 1.1rem; line-height: 1.5; 
+            display: none; font-weight: bold; text-align: center; box-shadow: 0 4px 0px rgba(0,0,0,0.1);
+        }
+        #loading { display: none; color: #e67e22; font-weight: bold; font-size: 1.1rem; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        
+        #hint-btn { 
+            background-color: #f1c40f; color: #d35400; border: 4px solid #f39c12; padding: 15px; 
+            font-size: 1.2rem; font-weight: bold; border-radius: 30px; cursor: pointer; 
+            box-shadow: 0 5px 0px #f39c12; width: 100%; transition: all 0.1s; letter-spacing: 1px;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+        }
+        #hint-btn:active { transform: translateY(5px); box-shadow: 0 0px 0px #f39c12; }
+        #hint-btn:disabled { background-color: #ecf0f1; border-color: #bdc3c7; color: #95a5a6; box-shadow: 0 5px 0px #bdc3c7; cursor: not-allowed; }
+        #hint-btn.upsell-mode { background-color: #ff9800; color: white; border-color: #e65100; box-shadow: 0 5px 0px #e65100; text-shadow: 1px 1px 0px #222; }
+        
+        .back-btn { 
+            background-color: #95a5a6; color: white; border: 4px solid #7f8c8d; padding: 12px; 
+            font-size: 1rem; font-weight: bold; border-radius: 12px; cursor: pointer; 
+            width: 80%; box-shadow: 0 4px 0px #7f8c8d; transition: all 0.1s;
+            font-family: 'M PLUS Rounded 1c', sans-serif; text-decoration: none; display: block; text-align: center; box-sizing: border-box;
+        }
+        .back-btn:active { transform: translateY(4px); box-shadow: 0 0px 0px #7f8c8d; }
+
+        #clear-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { 
+            background-color: #fff; padding: 30px; border-radius: 20px; text-align: center; 
+            width: 85%; max-width: 320px; border: 6px solid #f1c40f; box-shadow: 0 10px 0px #f39c12; 
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .modal-title { font-size: 2.2rem; color: #e74c3c; margin-top: 0; margin-bottom: 15px; font-weight: bold; text-shadow: 2px 2px 0px #f1c40f; }
+        .modal-time { font-size: 1.4rem; color: #2c3e50; margin-bottom: 25px; font-weight: bold; }
+        .modal-btn { 
+            background-color: #2ecc71; color: white; border: 4px solid #27ae60; padding: 15px 24px; 
+            font-size: 1.2rem; font-weight: bold; border-radius: 30px; cursor: pointer; width: 100%; 
+            box-shadow: 0 5px 0px #27ae60; text-shadow: 1px 1px 0px #222; transition: all 0.1s;
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+        }
+        .modal-btn:active { transform: translateY(5px); box-shadow: 0 0px 0px #27ae60; }
     </style>
 </head>
 <body>
@@ -81,30 +156,29 @@
     <div id="menu-screen">
         <h1>AIコーチ付きナンプレ</h1>
         
-        <div style="color: #666; font-size: 0.9rem; margin-bottom: 10px;">相棒（コーチ）を選んでください</div>
+        <div class="section-title">相棒（コーチ）を選んでください</div>
         <div class="coach-selection">
-            <!-- ボタンの中身を画像に変更 -->
             <div>
                 <button class="coach-btn" id="coach-male" onclick="selectCoach('male')">
-                    <img src="images/coach_male_normal.png" alt="男性">
+                    <img src="images/coach_male_normal.png" alt="マコト">
                 </button>
-                <div class="coach-label">男性</div>
+                <div class="coach-label">マコト</div>
             </div>
             <div>
                 <button class="coach-btn active" id="coach-robot" onclick="selectCoach('robot')">
-                    <img src="images/coach_robot_normal.png" alt="ロボット">
+                    <img src="images/coach_robot_normal.png" alt="ロボ助">
                 </button>
-                <div class="coach-label">ロボット</div>
+                <div class="coach-label">ロボ助</div>
             </div>
             <div>
                 <button class="coach-btn" id="coach-female" onclick="selectCoach('female')">
-                    <img src="images/coach_female_normal.png" alt="女性">
+                    <img src="images/coach_female_normal.png" alt="サクラ">
                 </button>
-                <div class="coach-label">女性</div>
+                <div class="coach-label">サクラ</div>
             </div>
         </div>
 
-        <div style="color: #666; font-size: 0.9rem; margin-bottom: 10px;">遊ぶステージを選んでください</div>
+        <div class="section-title">遊ぶステージを選んでください</div>
         <div class="stage-list"></div>
     </div>
 
@@ -115,7 +189,6 @@
             <div id="timer">00:00</div>
         </div>
 
-        <!-- 絵文字テキストを画像タグに置き換え -->
         <div id="ai-character" class="ai-character-area">
             <img id="coach-image" src="images/coach_robot_normal.png" alt="コーチ">
         </div>
@@ -157,7 +230,6 @@
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzyvzJeCKPbw8Y2Phz5hAcKWovpk3JiPVu-_Ij4noKMCv7z7md-31o2tROvd0MVmTYjGg/exec";
         const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/test_00wfZj6KO1KXaWWdkRfMA00";
 
-        // 全12枚の画像定義（名前を当初の想定通りに修正しています）
         const coachImages = {
             male: {
                 normal: 'images/coach_male_normal.png',
@@ -230,22 +302,19 @@
             currentCoach = coachType;
             document.querySelectorAll('.coach-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`coach-${coachType}`).classList.add('active');
-            // メニューで変更した時、ゲーム画面の画像も更新しておく
             coachImage.src = coachImages[currentCoach].normal;
         }
 
-        // アニメーション開始関数
         function startHappyAnimation() {
             stopHappyAnimation();
             let stateA = true;
-            coachImage.src = coachImages[currentCoach].happy_a; // 最初にバンザイを設定
+            coachImage.src = coachImages[currentCoach].happy_a; 
             happyAnimationInterval = setInterval(() => {
                 stateA = !stateA;
                 coachImage.src = stateA ? coachImages[currentCoach].happy_a : coachImages[currentCoach].happy_b;
-            }, 500); // 0.5秒ごとに切り替え
+            }, 500); 
         }
 
-        // アニメーション停止関数
         function stopHappyAnimation() {
             if (happyAnimationInterval) {
                 clearInterval(happyAnimationInterval);
@@ -253,16 +322,14 @@
             }
         }
 
-        // 画像切り替え処理
         function setCoachState(state) {
-            stopHappyAnimation(); // 他の状態になる時は必ずアニメーションを止める
+            stopHappyAnimation(); 
             
             if (state === 'happy') {
-                startHappyAnimation(); // 喜ぶ状態の場合はアニメーション開始
+                startHappyAnimation(); 
             } else {
-                coachImage.src = coachImages[currentCoach][state]; // 通常、または思考中の画像へ切り替え
+                coachImage.src = coachImages[currentCoach][state]; 
             }
-            // 背景色の変更
             aiCharacterArea.className = 'ai-character-area ' + state;
         }
 
@@ -293,7 +360,7 @@
 
         function backToMenu() {
             stopTimer();
-            stopHappyAnimation(); // メニューに戻る時もアニメーション停止
+            stopHappyAnimation(); 
             gameScreen.style.display = 'none';
             menuScreen.style.display = 'flex';
         }
@@ -490,9 +557,6 @@
             document.querySelectorAll('.highlight').forEach(cell => cell.classList.remove('highlight'));
         }
 
-        // ==========================================
-        // 修正ポイント：ここが消えていたためボタンが動いていませんでした！
-        // ==========================================
         hintBtn.addEventListener('click', getHint);
 
         window.onload = initMenu;
