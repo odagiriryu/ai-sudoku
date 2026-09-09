@@ -20,7 +20,7 @@
         
         .section-title { color: #666; font-size: 1.1rem; margin-bottom: 15px; font-weight: bold; text-align: center; border-bottom: 3px dashed #ccc; padding-bottom: 5px; width: 80%; }
 
-        /* キャラクター選択ボタン（余白を消して枠いっぱいに拡大） */
+        /* キャラクター選択ボタン */
         .coach-selection { display: flex; gap: 15px; margin-bottom: 30px; width: 90%; justify-content: center; }
         .coach-btn { 
             background-color: #fff; border: 4px solid #bdc3c7; border-radius: 12px; padding: 0; overflow: hidden; cursor: pointer; 
@@ -63,9 +63,9 @@
         .ai-character-area.happy { background-color: #e8f5e9; border-color: #27ae60; box-shadow: 0 6px 0px #27ae60; }
         .ai-character-area.happy::before { border-color: #d5f5e3; }
         
-        /* プレイ画面のコーチ画像：はみ出さないように元の設定に戻しました */
         #coach-image { max-height: 100%; width: auto; image-rendering: pixelated; object-fit: contain; z-index: 1; }
 
+        /* 盤面 */
         .sudoku-container { 
             background-color: #ecf0f1; padding: 8px; border-radius: 12px; 
             box-shadow: 0 6px 0px #bdc3c7; border: 4px solid #7f8c8d; margin-bottom: 25px; 
@@ -91,6 +91,7 @@
         td:first-child { border-left: 4px solid #2c3e50; }
         tr:first-child td { border-top: 4px solid #2c3e50; }
 
+        /* テンキー */
         .numpad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; width: 95%; margin-bottom: 20px; }
         .num-btn { 
             background-color: #fdfefe; border: 3px solid #95a5a6; padding: 12px 0; 
@@ -148,6 +149,38 @@
             font-family: 'M PLUS Rounded 1c', sans-serif;
         }
         .modal-btn:active { transform: translateY(5px); box-shadow: 0 0px 0px #27ae60; }
+
+        /* =========================================
+           📱 スマホ用レスポンシブ対応（1画面に収める設定） 
+           画面幅が狭い、または縦幅が短いスマホ端末で適用されます
+           ========================================= */
+        @media screen and (max-width: 500px), screen and (max-height: 850px) {
+            body { padding-top: 5px; }
+            .header-area { margin-bottom: 8px; padding: 6px 12px; }
+            #stage-title, #timer { font-size: 1.1rem; }
+            
+            /* コーチエリアの高さを少し縮小 */
+            .ai-character-area { height: 85px; margin-bottom: 12px; }
+            
+            /* 盤面とマスのサイズをスマホに合わせて縮小 */
+            .sudoku-container { padding: 5px; margin-bottom: 15px; border-width: 3px; }
+            table { border-width: 3px; }
+            td { width: 35px; height: 35px; max-width: 35px; max-height: 35px; font-size: 1.5rem; }
+            td.selected { font-size: 1.6rem; border-width: 2px; }
+            
+            /* テンキーの隙間と高さを圧縮 */
+            .numpad { gap: 6px; margin-bottom: 15px; width: 98%; }
+            .num-btn { padding: 8px 0; font-size: 1.4rem; border-width: 2px; box-shadow: 0 4px 0px #95a5a6; }
+            .num-btn:active { transform: translateY(4px); box-shadow: 0 0px 0px #95a5a6; }
+            .num-btn.delete-btn { padding: 8px 0; font-size: 1.1rem; box-shadow: 0 4px 0px #c0392b; }
+            .num-btn.delete-btn:active { box-shadow: 0 0px 0px #c0392b; }
+            
+            /* コントロールボタン類の余白を圧縮 */
+            .controls { gap: 10px; margin-bottom: 15px; width: 98%; }
+            #hint-btn { padding: 12px; font-size: 1.1rem; border-width: 3px; box-shadow: 0 4px 0px #f39c12; }
+            #hint-btn:active { transform: translateY(4px); box-shadow: 0 0px 0px #f39c12; }
+            .back-btn { padding: 10px; font-size: 0.9rem; width: 90%; margin-bottom: 5px; }
+        }
     </style>
 </head>
 <body>
@@ -254,6 +287,53 @@
         let currentCoach = 'robot'; 
         let happyAnimationInterval = null;
 
+        // --- サウンド生成機能（Web Audio API） ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // 基本の音を鳴らす関数
+        function playTone(freq, type, duration, vol = 0.1) {
+            initAudio();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            
+            gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + duration);
+        }
+
+        // 各種効果音の定義
+        function playClickSound() { playTone(600, 'sine', 0.1, 0.1); }
+        function playErrorSound() { playTone(150, 'sawtooth', 0.3, 0.15); }
+        function playStartSound() {
+            playTone(400, 'square', 0.1, 0.05);
+            setTimeout(() => playTone(600, 'square', 0.15, 0.05), 100);
+        }
+        function playClearSound() {
+            playTone(400, 'square', 0.1, 0.1);
+            setTimeout(() => playTone(400, 'square', 0.1, 0.1), 150);
+            setTimeout(() => playTone(400, 'square', 0.1, 0.1), 300);
+            setTimeout(() => playTone(600, 'square', 0.4, 0.1), 450);
+        }
+        // -----------------------------------------
+
         const stagesData = [
             { title: "テスト用 (あと1マス)", board: [[5, 3, 4, 6, 7, 8, 9, 1, 2], [6, 7, 2, 1, 9, 5, 3, 4, 8], [1, 9, 8, 3, 4, 2, 5, 6, 7], [8, 5, 9, 7, 6, 1, 4, 2, 3], [4, 2, 6, 8, 5, 3, 7, 9, 1], [7, 1, 3, 9, 2, 4, 8, 5, 6], [9, 6, 1, 5, 3, 7, 2, 8, 4], [2, 8, 7, 4, 1, 9, 6, 3, 5], [3, 4, 5, 2, 8, 6, 1, 7, 0]] },
             { title: "初級 1", board: [[7, 9, 0, 3, 0, 1, 6, 8, 4], [4, 2, 0, 5, 8, 0, 0, 7, 0], [0, 3, 8, 0, 4, 7, 9, 2, 5], [2, 0, 0, 1, 5, 0, 0, 0, 7], [9, 7, 0, 2, 3, 0, 8, 5, 6], [0, 0, 0, 9, 7, 0, 4, 1, 0], [8, 0, 2, 7, 9, 0, 5, 6, 0], [0, 6, 9, 0, 0, 2, 7, 3, 0], [3, 1, 0, 8, 0, 0, 2, 4, 9]] },
@@ -299,6 +379,7 @@
         }
 
         function selectCoach(coachType) {
+            playClickSound();
             currentCoach = coachType;
             document.querySelectorAll('.coach-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`coach-${coachType}`).classList.add('active');
@@ -334,6 +415,7 @@
         }
 
         function startStage(stageIndex) {
+            playStartSound(); 
             const stage = stagesData[stageIndex];
             currentOriginalBoard = JSON.parse(JSON.stringify(stage.board));
             currentBoardData = JSON.parse(JSON.stringify(stage.board));
@@ -359,6 +441,7 @@
         }
 
         function backToMenu() {
+            playClickSound(); 
             stopTimer();
             stopHappyAnimation(); 
             gameScreen.style.display = 'none';
@@ -403,6 +486,7 @@
 
         function selectCell(r, c) {
             if (isCleared || currentOriginalBoard[r][c] !== 0) return; 
+            playClickSound(); 
             document.querySelectorAll('.selected').forEach(cell => cell.classList.remove('selected'));
             clearHighlights();
             selectedCell = { r, c };
@@ -415,12 +499,20 @@
             const c = selectedCell.c;
             currentBoardData[r][c] = num;
             document.getElementById(`cell-${r}-${c}`).innerText = num === 0 ? '' : num;
-            checkBoardErrors();
+            
+            const hasError = checkBoardErrors();
+            if (hasError) {
+                playErrorSound(); 
+            } else {
+                playClickSound(); 
+            }
+            
             checkClear();
         }
 
         function checkBoardErrors() {
             document.querySelectorAll('.cell, td').forEach(cell => cell.classList.remove('error'));
+            let anyError = false;
             for (let r = 0; r < 9; r++) {
                 for (let c = 0; c < 9; c++) {
                     const val = currentBoardData[r][c];
@@ -441,9 +533,11 @@
                     }
                     if (isError) {
                         document.getElementById(`cell-${r}-${c}`).classList.add('error');
+                        anyError = true;
                     }
                 }
             }
+            return anyError;
         }
 
         function checkClear() {
@@ -462,6 +556,7 @@
                 selectedCell = null;
                 
                 setCoachState('happy');
+                playClearSound(); 
 
                 setTimeout(() => {
                     document.getElementById('final-time').innerText = timerDisplay.innerText;
@@ -471,11 +566,13 @@
         }
 
         function closeClearModal() {
+            playClickSound(); 
             clearModal.style.display = 'none';
             backToMenu();
         }
 
         async function getHint() {
+            playClickSound(); 
             if (hintsRemaining <= 0 && !isUnlimitedHints) {
                 const wantsToBuy = confirm("1ステージの無料ヒント枠（3回）を使い切りました。\n\n「AIヒント使い放題パック（100円）」を購入して、このステージの続きをAIと一緒に解きますか？\n\n※「OK」を押すとStripeの決済画面（テスト用）が開きます。");
                 
@@ -544,6 +641,7 @@
         }
 
         function displayHint(hint) {
+            playClickSound(); 
             const r = parseInt(hint.target_row) - 1;
             const c = parseInt(hint.target_col) - 1;
             hintArea.innerText = `コーチのヒント：\n(${r+1}行, ${c+1}列) に「${hint.answer_number}」が入ります。\n理由: ${hint.explanation}`;
