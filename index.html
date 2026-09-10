@@ -20,37 +20,65 @@
         
         .section-title { color: #666; font-size: 1.1rem; margin-bottom: 15px; font-weight: bold; text-align: center; border-bottom: 3px dashed #ccc; padding-bottom: 5px; width: 80%; }
 
-        /* キャラクター選択ボタン */
-        .coach-selection { display: flex; gap: 15px; margin-bottom: 30px; width: 90%; justify-content: center; }
+        .coach-selection { display: flex; gap: 15px; margin-bottom: 20px; width: 90%; justify-content: center; }
         .coach-btn { 
             background-color: #fff; border: 4px solid #bdc3c7; border-radius: 12px; padding: 0; overflow: hidden; cursor: pointer; 
             transition: all 0.2s; box-shadow: 0 4px 0px #bdc3c7; display: flex; align-items: center; justify-content: center;
-            flex: 1; max-width: 100px; height: 100px;
+            flex: 1; max-width: 90px; height: 90px;
         }
         .coach-btn:active { transform: translateY(4px); box-shadow: 0 0px 0px #bdc3c7; }
         .coach-btn.active { border-color: #e74c3c; background-color: #ffeaea; box-shadow: 0 4px 0px #e74c3c; transform: translateY(-2px); }
         .coach-btn img { width: 100%; height: 100%; image-rendering: pixelated; object-fit: contain; transform: scale(1.5); }
-        .coach-label { font-size: 1.1rem; color: #4a4a4a; text-align: center; font-weight: bold; margin-top: 8px; }
+        .coach-label { font-size: 1rem; color: #4a4a4a; text-align: center; font-weight: bold; margin-top: 5px; }
 
-        .stage-list { display: flex; flex-direction: column; gap: 15px; width: 85%; }
-        .stage-btn { 
-            background-color: #3498db; color: white; border: 4px solid #2980b9; padding: 15px; 
-            font-size: 1.3rem; font-weight: bold; border-radius: 12px; cursor: pointer; 
-            box-shadow: 0 5px 0px #2980b9; text-shadow: 1px 1px 0px #222; transition: all 0.1s; letter-spacing: 1px;
-            font-family: 'M PLUS Rounded 1c', sans-serif;
+        .tabs { display: flex; width: 95%; justify-content: space-between; margin-bottom: 15px; gap: 5px; }
+        .tab-btn {
+            flex: 1; padding: 10px 5px; font-size: 1rem; font-weight: bold; border-radius: 10px 10px 0 0;
+            background-color: #ecf0f1; border: 3px solid #bdc3c7; border-bottom: none; color: #7f8c8d;
+            cursor: pointer; transition: all 0.2s; font-family: 'M PLUS Rounded 1c', sans-serif;
         }
-        .stage-btn:active { transform: translateY(5px); box-shadow: 0 0px 0px #2980b9; }
-        .stage-btn.test-btn { background-color: #f39c12; border-color: #d35400; box-shadow: 0 5px 0px #d35400; }
-        .stage-btn.test-btn:active { box-shadow: 0 0px 0px #d35400; }
+        .tab-btn.active { background-color: #3498db; color: white; border-color: #2980b9; box-shadow: 0 -3px 0px rgba(0,0,0,0.1) inset; }
+        .tab-btn.premium { color: #f39c12; }
+        .tab-btn.premium.active { background-color: #2c3e50; color: #f1c40f; border-color: #1a252f; }
+
+        .stage-grid-container {
+            background-color: #3498db; width: 95%; padding: 15px; border-radius: 0 0 12px 12px;
+            border: 4px solid #2980b9; box-shadow: 0 5px 0px #2980b9; box-sizing: border-box; margin-bottom: 20px;
+            max-height: 400px; overflow-y: auto;
+        }
+        .stage-grid-container.premium { background-color: #2c3e50; border-color: #1a252f; box-shadow: 0 5px 0px #1a252f; }
+
+        .stage-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
         
-        /* ゲーム画面上部のレイアウト（PC用） */
+        .stage-btn { 
+            background-color: #fff; color: #2980b9; border: 3px solid #bdc3c7; aspect-ratio: 1;
+            font-size: 1.6rem; font-weight: bold; border-radius: 10px; cursor: pointer; 
+            box-shadow: 0 4px 0px #bdc3c7; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-family: 'M PLUS Rounded 1c', sans-serif; transition: all 0.1s; position: relative;
+        }
+        .stage-btn:active { transform: translateY(4px); box-shadow: 0 0px 0px #bdc3c7; }
+        
+        .stage-btn.locked { background-color: #e0e0e0; color: #999; border-color: #b0b0b0; box-shadow: 0 4px 0px #b0b0b0; }
+        .stage-btn.locked::after { content: '🔒'; position: absolute; font-size: 1.5rem; opacity: 0.8; }
+        .stage-btn.locked span { opacity: 0.3; }
+        
+        .stage-btn.cleared { 
+            background-color: #fef9e7; color: #d35400; border-color: #f1c40f; box-shadow: 0 4px 0px #f39c12; 
+            justify-content: center; gap: 4px; position: relative; overflow: hidden;
+        }
+        .stage-btn.cleared::before { 
+            content: '👑'; position: absolute; font-size: 4.5rem; opacity: 0.15; 
+            top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 0;
+        }
+        .stage-btn.cleared span.stage-num { font-size: 1.6rem; z-index: 1; position: relative; margin-top: -2px; }
+        .best-time-label { font-size: 0.85rem; color: #e67e22; font-weight: bold; line-height: 1; z-index: 1; position: relative; letter-spacing: 0.5px;}
+
         .top-info-wrapper { display: flex; flex-direction: column; width: 90%; gap: 15px; margin-bottom: 20px; }
         
         .header-area { display: flex; justify-content: space-between; align-items: center; background-color: #fff; padding: 10px 15px; border-radius: 10px; border: 3px solid #ccc; box-sizing: border-box; box-shadow: 0 4px 0px rgba(0,0,0,0.05); }
         #stage-title { color: #d35400; font-size: 1.3rem; font-weight: bold; margin: 0; }
         #timer { font-size: 1.4rem; font-weight: bold; color: #34495e; letter-spacing: 2px; }
 
-        /* コーチエリア */
         .ai-character-area { 
             width: 100%; height: 120px; background-color: #fff; border-radius: 15px; 
             display: flex; align-items: flex-end; justify-content: center; 
@@ -68,18 +96,9 @@
         
         #coach-image { max-height: 100%; width: auto; image-rendering: pixelated; object-fit: contain; z-index: 1; }
 
-        /* 盤面 */
-        .sudoku-container { 
-            background-color: #ecf0f1; padding: 8px; border-radius: 12px; 
-            box-shadow: 0 6px 0px #bdc3c7; border: 4px solid #7f8c8d; margin-bottom: 25px; 
-        }
+        .sudoku-container { background-color: #ecf0f1; padding: 8px; border-radius: 12px; box-shadow: 0 6px 0px #bdc3c7; border: 4px solid #7f8c8d; margin-bottom: 25px; }
         table { border-collapse: collapse; border: 4px solid #2c3e50; table-layout: fixed; background-color: #fff; margin: 0 auto; }
-        td { 
-            border: 1px solid #bdc3c7; width: 42px; height: 42px; max-width: 42px; max-height: 42px; 
-            box-sizing: border-box; text-align: center; vertical-align: middle; 
-            font-size: 1.8rem; font-weight: bold; color: #2c3e50; cursor: pointer; padding: 0; 
-            user-select: none; line-height: 1; transition: background-color 0.1s; 
-        }
+        td { border: 1px solid #bdc3c7; width: 42px; height: 42px; max-width: 42px; max-height: 42px; box-sizing: border-box; text-align: center; vertical-align: middle; font-size: 1.8rem; font-weight: bold; color: #2c3e50; cursor: pointer; padding: 0; user-select: none; line-height: 1; transition: background-color 0.1s; }
 
         td.fixed { color: #2980b9; background-color: #ebf5fb; cursor: default; }
         td.selected { background-color: #fff3e0; border: 3px solid #e67e22; font-size: 2rem; color: #d35400; z-index: 10; position: relative; }
@@ -94,110 +113,71 @@
         td:first-child { border-left: 4px solid #2c3e50; }
         tr:first-child td { border-top: 4px solid #2c3e50; }
 
-        /* テンキー（5列x2行に収める） */
         .numpad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; width: 95%; margin-bottom: 20px; }
-        .num-btn { 
-            background-color: #fdfefe; border: 3px solid #95a5a6; padding: 12px 0; 
-            font-size: 1.6rem; font-weight: bold; border-radius: 10px; color: #2c3e50; 
-            cursor: pointer; box-shadow: 0 5px 0px #95a5a6; transition: all 0.1s; 
-            font-family: 'M PLUS Rounded 1c', sans-serif;
-        }
+        .num-btn { background-color: #fdfefe; border: 3px solid #95a5a6; padding: 12px 0; font-size: 1.6rem; font-weight: bold; border-radius: 10px; color: #2c3e50; cursor: pointer; box-shadow: 0 5px 0px #95a5a6; transition: all 0.1s; font-family: 'M PLUS Rounded 1c', sans-serif; }
         .num-btn:active { transform: translateY(5px); box-shadow: 0 0px 0px #95a5a6; }
-        
-        /* マスを空にするボタン（1マス分に圧縮） */
-        .num-btn.delete-btn { 
-            background-color: #e74c3c; color: white; 
-            border-color: #c0392b; box-shadow: 0 5px 0px #c0392b; font-size: 1.4rem; 
-            text-shadow: 1px 1px 0px #222; 
-        }
+        .num-btn.delete-btn { background-color: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 5px 0px #c0392b; font-size: 1.4rem; text-shadow: 1px 1px 0px #222; }
         .num-btn.delete-btn:active { box-shadow: 0 0px 0px #c0392b; }
 
         .controls { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 95%; margin-bottom: 30px; }
-        #hint-area { 
-            background-color: #fef9e7; border: 4px solid #f1c40f; padding: 15px; border-radius: 12px; 
-            width: 100%; box-sizing: border-box; color: #333; font-size: 1.1rem; line-height: 1.5; 
-            display: none; font-weight: bold; text-align: center; box-shadow: 0 4px 0px rgba(0,0,0,0.1);
-        }
+        #hint-area { background-color: #fef9e7; border: 4px solid #f1c40f; padding: 15px; border-radius: 12px; width: 100%; box-sizing: border-box; color: #333; font-size: 1.1rem; line-height: 1.5; display: none; font-weight: bold; text-align: center; box-shadow: 0 4px 0px rgba(0,0,0,0.1); }
         #loading { display: none; color: #e67e22; font-weight: bold; font-size: 1.1rem; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         
-        #hint-btn { 
-            background-color: #f1c40f; color: #d35400; border: 4px solid #f39c12; padding: 15px; 
-            font-size: 1.2rem; font-weight: bold; border-radius: 30px; cursor: pointer; 
-            box-shadow: 0 5px 0px #f39c12; width: 100%; transition: all 0.1s; letter-spacing: 1px;
-            font-family: 'M PLUS Rounded 1c', sans-serif;
-        }
+        #hint-btn { background-color: #f1c40f; color: #d35400; border: 4px solid #f39c12; padding: 15px; font-size: 1.2rem; font-weight: bold; border-radius: 30px; cursor: pointer; box-shadow: 0 5px 0px #f39c12; width: 100%; transition: all 0.1s; letter-spacing: 1px; font-family: 'M PLUS Rounded 1c', sans-serif; }
         #hint-btn:active { transform: translateY(5px); box-shadow: 0 0px 0px #f39c12; }
         #hint-btn:disabled { background-color: #ecf0f1; border-color: #bdc3c7; color: #95a5a6; box-shadow: 0 5px 0px #bdc3c7; cursor: not-allowed; }
         #hint-btn.upsell-mode { background-color: #ff9800; color: white; border-color: #e65100; box-shadow: 0 5px 0px #e65100; text-shadow: 1px 1px 0px #222; }
         
-        .back-btn { 
-            background-color: #95a5a6; color: white; border: 4px solid #7f8c8d; padding: 12px; 
-            font-size: 1rem; font-weight: bold; border-radius: 12px; cursor: pointer; 
-            width: 80%; box-shadow: 0 4px 0px #7f8c8d; transition: all 0.1s;
-            font-family: 'M PLUS Rounded 1c', sans-serif; text-decoration: none; display: block; text-align: center; box-sizing: border-box;
-        }
+        .back-btn { background-color: #95a5a6; color: white; border: 4px solid #7f8c8d; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 12px; cursor: pointer; width: 80%; box-shadow: 0 4px 0px #7f8c8d; transition: all 0.1s; font-family: 'M PLUS Rounded 1c', sans-serif; text-decoration: none; display: block; text-align: center; box-sizing: border-box; }
         .back-btn:active { transform: translateY(4px); box-shadow: 0 0px 0px #7f8c8d; }
 
         #clear-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { 
-            background-color: #fff; padding: 30px; border-radius: 20px; text-align: center; 
-            width: 85%; max-width: 320px; border: 6px solid #f1c40f; box-shadow: 0 10px 0px #f39c12; 
-            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
+        .modal-content { background-color: #fff; padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 320px; border: 6px solid #f1c40f; box-shadow: 0 10px 0px #f39c12; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .modal-title { font-size: 2.2rem; color: #e74c3c; margin-top: 0; margin-bottom: 15px; font-weight: bold; text-shadow: 2px 2px 0px #f1c40f; }
         .modal-time { font-size: 1.4rem; color: #2c3e50; margin-bottom: 25px; font-weight: bold; }
-        .modal-btn { 
-            background-color: #2ecc71; color: white; border: 4px solid #27ae60; padding: 15px 24px; 
-            font-size: 1.2rem; font-weight: bold; border-radius: 30px; cursor: pointer; width: 100%; 
-            box-shadow: 0 5px 0px #27ae60; text-shadow: 1px 1px 0px #222; transition: all 0.1s;
-            font-family: 'M PLUS Rounded 1c', sans-serif;
-        }
+        .modal-btn { background-color: #2ecc71; color: white; border: 4px solid #27ae60; padding: 15px 24px; font-size: 1.2rem; font-weight: bold; border-radius: 30px; cursor: pointer; width: 100%; box-shadow: 0 5px 0px #27ae60; text-shadow: 1px 1px 0px #222; transition: all 0.1s; font-family: 'M PLUS Rounded 1c', sans-serif; }
         .modal-btn:active { transform: translateY(5px); box-shadow: 0 0px 0px #27ae60; }
 
-        /* =========================================
-           📱 スマホ用レスポンシブ対応（1画面フルフィット）
-           ========================================= */
+        /* リセットボタン（テスト用） */
+        .reset-btn { font-size: 0.8rem; color: #999; text-decoration: underline; cursor: pointer; margin-top: 15px; background: none; border: none; }
+
         @media screen and (max-width: 500px), screen and (max-height: 850px) {
             body { padding-top: 5px; }
-            
-            /* ヘッダーを横並びに！左に情報、右にコーチ */
             .top-info-wrapper { flex-direction: row; align-items: stretch; margin-bottom: 10px; width: 95%; gap: 10px; }
-            
             .header-area { flex: 1; flex-direction: column; justify-content: center; padding: 6px; border-width: 3px; box-shadow: 0 3px 0px rgba(0,0,0,0.05); }
             #stage-title { font-size: 1rem; margin-bottom: 4px; text-align: center; }
             #timer { font-size: 1.2rem; text-align: center; }
-            
-            /* コーチを右側の正方形枠に */
             .ai-character-area { width: 85px; height: 85px; flex-shrink: 0; border-width: 3px; box-shadow: 0 4px 0px #7f8c8d; border-radius: 12px; }
             .ai-character-area::before { top: 3px; left: 3px; right: 3px; bottom: 3px; }
             .ai-character-area.thinking { box-shadow: 0 4px 0px #f39c12; }
             .ai-character-area.happy { box-shadow: 0 4px 0px #27ae60; }
-            
-            /* 盤面を圧縮 */
             .sudoku-container { padding: 6px; margin-bottom: 12px; border-width: 3px; box-shadow: 0 4px 0px #bdc3c7; }
             table { border-width: 3px; }
             td { width: 34px; height: 34px; max-width: 34px; max-height: 34px; font-size: 1.5rem; }
             td.selected { font-size: 1.6rem; border-width: 2px; }
-            
-            /* テンキーの圧縮 */
             .numpad { gap: 6px; margin-bottom: 12px; width: 98%; }
             .num-btn { padding: 6px 0; font-size: 1.4rem; border-width: 2px; box-shadow: 0 4px 0px #95a5a6; border-radius: 8px; }
             .num-btn:active { transform: translateY(4px); box-shadow: 0 0px 0px #95a5a6; }
             .num-btn.delete-btn { font-size: 1.2rem; box-shadow: 0 4px 0px #c0392b; }
-            
-            /* コントロールボタン類の圧縮 */
             .controls { gap: 10px; margin-bottom: 10px; width: 98%; }
             #hint-btn { padding: 12px; font-size: 1.1rem; border-width: 3px; box-shadow: 0 4px 0px #f39c12; border-radius: 20px; }
             #hint-btn:active { transform: translateY(4px); box-shadow: 0 0px 0px #f39c12; }
             .back-btn { padding: 10px; font-size: 0.9rem; width: 85%; margin-bottom: 0; border-width: 3px; box-shadow: 0 3px 0px #7f8c8d; }
             .back-btn:active { transform: translateY(3px); box-shadow: 0 0px 0px #7f8c8d; }
+            .tabs { margin-bottom: 10px; }
+            .tab-btn { font-size: 0.9rem; padding: 8px 2px; }
+            .stage-grid-container { padding: 10px; max-height: 350px; }
+            .stage-btn { font-size: 1.4rem; }
+            .stage-btn.locked::after { font-size: 1.2rem; }
+            .stage-btn.cleared span.stage-num { font-size: 1.4rem; }
+            .best-time-label { font-size: 0.9rem; }
+            .stage-btn.cleared::before { font-size: 3.5rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- メニュー画面 -->
     <div id="menu-screen">
         <h1>AIコーチ付きナンプレ</h1>
         
@@ -224,13 +204,28 @@
         </div>
 
         <div class="section-title">遊ぶステージを選んでください</div>
-        <div class="stage-list"></div>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="changeTab('beginner')">初級</button>
+            <button class="tab-btn" onclick="changeTab('intermediate')">中級</button>
+            <button class="tab-btn" onclick="changeTab('advanced')">上級</button>
+            <button class="tab-btn premium" onclick="changeTab('master')">達人級👑</button>
+        </div>
+
+        <div id="stage-grid-area" class="stage-grid-container">
+            <div class="stage-grid" id="stage-grid">
+                <!-- JavaScriptでボタンが自動生成されます -->
+            </div>
+            <div style="text-align: center; margin-top: 15px; font-size: 0.8rem; color: rgba(255,255,255,0.8);">
+                ※データはこのブラウザに保存されます。履歴を消去するとデータも消えるのでご注意ください。<br>
+            </div>
+        </div>
+        
+        <!-- テスト用リセットボタン -->
+        <button class="reset-btn" onclick="resetSaveData()">🔄 セーブデータをリセット（テスト用）</button>
     </div>
 
-    <!-- ゲーム画面 -->
     <div id="game-screen" style="display: none;">
-        
-        <!-- 新設：ヘッダーとコーチをまとめるラッパー -->
         <div class="top-info-wrapper">
             <div class="header-area">
                 <div id="stage-title"></div>
@@ -255,7 +250,6 @@
             <button class="num-btn" onclick="inputNumber(7)">7</button>
             <button class="num-btn" onclick="inputNumber(8)">8</button>
             <button class="num-btn" onclick="inputNumber(9)">9</button>
-            <!-- 9の右隣に「消」ボタンを配置 -->
             <button class="num-btn delete-btn" onclick="inputNumber(0)">消</button>
         </div>
 
@@ -275,89 +269,87 @@
         </div>
     </div>
 
+    <script src="stages_beginner.js"></script>
+    <script src="stages_intermediate.js"></script>
+    <script src="stages_advanced.js"></script>
+    <script src="stages_master.js"></script>
+
     <script>
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzyvzJeCKPbw8Y2Phz5hAcKWovpk3JiPVu-_Ij4noKMCv7z7md-31o2tROvd0MVmTYjGg/exec";
-        const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/test_00wfZj6KO1KXaWWdkRfMA00";
+        
+        const STRIPE_LINKS = {
+            hint: "https://buy.stripe.com/test_00wfZj6KO1KXaWWdkRfMA00",
+            beginner: "https://buy.stripe.com/test_00wfZj6KO1KXaWWdkRfMA00", 
+            intermediate: "https://buy.stripe.com/test_00wfZj6KO1KXaWWdkRfMA00", 
+            advanced: "https://buy.stripe.com/test_00wfZj6KO1KXaWWdkRfMA00",
+            master: "https://buy.stripe.com/test_00wfZj6KO1KXaWWdkRfMA00"
+        };
 
         const coachImages = {
-            male: {
-                normal: 'images/coach_male_normal.png',
-                thinking: 'images/coach_male_thinking.png',
-                happy_a: 'images/coach_male_happy_a.png',
-                happy_b: 'images/coach_male_happy_b.png'
-            },
-            female: {
-                normal: 'images/coach_female_normal.png',
-                thinking: 'images/coach_female_thinking.png',
-                happy_a: 'images/coach_female_happy_a.png',
-                happy_b: 'images/coach_female_happy_b.png'
-            },
-            robot: {
-                normal: 'images/coach_robot_normal.png',
-                thinking: 'images/coach_robot_thinking.png',
-                happy_a: 'images/coach_robot_happy_a.png',
-                happy_b: 'images/coach_robot_happy_b.png'
-            }
+            male: { normal: 'images/coach_male_normal.png', thinking: 'images/coach_male_thinking.png', happy_a: 'images/coach_male_happy_a.png', happy_b: 'images/coach_male_happy_b.png' },
+            female: { normal: 'images/coach_female_normal.png', thinking: 'images/coach_female_thinking.png', happy_a: 'images/coach_female_happy_a.png', happy_b: 'images/coach_female_happy_b.png' },
+            robot: { normal: 'images/coach_robot_normal.png', thinking: 'images/coach_robot_thinking.png', happy_a: 'images/coach_robot_happy_a.png', happy_b: 'images/coach_robot_happy_b.png' }
         };
         
         let currentCoach = 'robot'; 
         let happyAnimationInterval = null;
+        let currentDifficulty = 'beginner'; 
 
-        // --- サウンド生成機能（Web Audio API） ---
+        let playSessionId = 0;
+        let isThinking = false;
+
+        let savedData = JSON.parse(localStorage.getItem('sudokuAppSave')) || {
+            unlockedPacks: { beginner: 0, intermediate: 0, advanced: 0, master: 0 },
+            cleared: {},   
+            bestTimes: {}  
+        };
+
+        // 古いバージョンのセーブデータ互換処理
+        if (savedData.unlocked) {
+            savedData.unlockedPacks = {
+                beginner: savedData.unlocked.beginner ? 1 : 0,
+                intermediate: savedData.unlocked.intermediate ? 1 : 0,
+                advanced: savedData.unlocked.advanced ? 1 : 0,
+                master: 0
+            };
+            delete savedData.unlocked;
+        }
+
+        function saveGameData() {
+            localStorage.setItem('sudokuAppSave', JSON.stringify(savedData));
+        }
+
+        // テスト用：セーブデータリセット関数
+        function resetSaveData() {
+            if(confirm("【開発用】\nセーブデータ（クリア状況・課金パック・タイム）をすべてリセットしますか？\n（※外部ファイルのデータは消えません）")) {
+                localStorage.removeItem('sudokuAppSave');
+                location.reload(); // 画面を再読み込みして反映
+            }
+        }
+
+        const stagesDataMap = {
+            'beginner': typeof stagesBeginnerData !== 'undefined' ? stagesBeginnerData : [],
+            'intermediate': typeof stagesIntermediateData !== 'undefined' ? stagesIntermediateData : [],
+            'advanced': typeof stagesAdvancedData !== 'undefined' ? stagesAdvancedData : [],
+            'master': typeof stagesMasterData !== 'undefined' ? stagesMasterData : []
+        };
+
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx;
-
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new AudioContext();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-        }
-
-        // 基本の音を鳴らす関数
+        function initAudio() { if (!audioCtx) { audioCtx = new AudioContext(); } if (audioCtx.state === 'suspended') { audioCtx.resume(); } }
         function playTone(freq, type, duration, vol = 0.1) {
-            initAudio();
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            oscillator.type = type;
-            oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            
-            gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + duration);
+            initAudio(); const oscillator = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
+            oscillator.type = type; oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(vol, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
+            oscillator.start(); oscillator.stop(audioCtx.currentTime + duration);
         }
-
-        // 各種効果音の定義
         function playClickSound() { playTone(600, 'sine', 0.1, 0.1); }
         function playErrorSound() { playTone(150, 'sawtooth', 0.3, 0.15); }
-        function playStartSound() {
-            playTone(400, 'square', 0.1, 0.05);
-            setTimeout(() => playTone(600, 'square', 0.15, 0.05), 100);
-        }
-        function playClearSound() {
-            playTone(400, 'square', 0.1, 0.1);
-            setTimeout(() => playTone(400, 'square', 0.1, 0.1), 150);
-            setTimeout(() => playTone(400, 'square', 0.1, 0.1), 300);
-            setTimeout(() => playTone(600, 'square', 0.4, 0.1), 450);
-        }
-        // -----------------------------------------
+        function playStartSound() { playTone(400, 'square', 0.1, 0.05); setTimeout(() => playTone(600, 'square', 0.15, 0.05), 100); }
+        function playClearSound() { playTone(400, 'square', 0.1, 0.1); setTimeout(() => playTone(400, 'square', 0.1, 0.1), 150); setTimeout(() => playTone(400, 'square', 0.1, 0.1), 300); setTimeout(() => playTone(600, 'square', 0.4, 0.1), 450); }
 
-        const stagesData = [
-            { title: "テスト用 (あと1マス)", board: [[5, 3, 4, 6, 7, 8, 9, 1, 2], [6, 7, 2, 1, 9, 5, 3, 4, 8], [1, 9, 8, 3, 4, 2, 5, 6, 7], [8, 5, 9, 7, 6, 1, 4, 2, 3], [4, 2, 6, 8, 5, 3, 7, 9, 1], [7, 1, 3, 9, 2, 4, 8, 5, 6], [9, 6, 1, 5, 3, 7, 2, 8, 4], [2, 8, 7, 4, 1, 9, 6, 3, 5], [3, 4, 5, 2, 8, 6, 1, 7, 0]] },
-            { title: "初級 1", board: [[7, 9, 0, 3, 0, 1, 6, 8, 4], [4, 2, 0, 5, 8, 0, 0, 7, 0], [0, 3, 8, 0, 4, 7, 9, 2, 5], [2, 0, 0, 1, 5, 0, 0, 0, 7], [9, 7, 0, 2, 3, 0, 8, 5, 6], [0, 0, 0, 9, 7, 0, 4, 1, 0], [8, 0, 2, 7, 9, 0, 5, 6, 0], [0, 6, 9, 0, 0, 2, 7, 3, 0], [3, 1, 0, 8, 0, 0, 2, 4, 9]] },
-            { title: "初級 2", board: [[1, 3, 4, 0, 5, 2, 0, 8, 0], [0, 8, 2, 0, 1, 0, 0, 3, 7], [5, 0, 9, 0, 0, 3, 2, 4, 0], [7, 1, 5, 0, 0, 4, 0, 0, 0], [0, 6, 0, 3, 0, 1, 0, 7, 0], [2, 4, 3, 8, 7, 5, 9, 1, 0], [4, 9, 1, 2, 3, 0, 7, 5, 8], [3, 2, 7, 5, 9, 0, 1, 0, 0], [0, 5, 0, 1, 0, 7, 0, 9, 2]] },
-            { title: "初級 3", board: [[8, 1, 7, 0, 3, 0, 9, 0, 0], [0, 4, 5, 0, 8, 7, 2, 3, 0], [6, 3, 2, 9, 5, 4, 0, 1, 0], [4, 8, 3, 5, 0, 0, 0, 7, 0], [0, 9, 6, 3, 0, 1, 4, 8, 0], [2, 7, 1, 8, 0, 9, 0, 6, 0], [0, 6, 9, 0, 2, 8, 0, 0, 3], [7, 5, 8, 4, 9, 0, 6, 0, 1], [3, 0, 4, 0, 1, 0, 8, 0, 0]] },
-            { title: "初級 4", board: [[0, 8, 7, 5, 1, 0, 2, 0, 3], [9, 3, 1, 8, 7, 0, 6, 0, 0], [4, 0, 2, 0, 0, 0, 0, 8, 0], [2, 4, 0, 0, 0, 3, 0, 0, 6], [7, 1, 0, 2, 5, 6, 9, 0, 4], [5, 6, 3, 4, 0, 1, 8, 0, 0], [8, 0, 4, 1, 6, 5, 3, 2, 0], [3, 2, 0, 9, 0, 7, 0, 1, 8], [1, 7, 0, 0, 2, 8, 4, 6, 0]] },
-            { title: "初級 5", board: [[5, 0, 1, 4, 3, 6, 8, 0, 0], [4, 8, 0, 0, 7, 0, 0, 1, 5], [0, 7, 0, 5, 8, 0, 6, 2, 4], [2, 0, 5, 8, 6, 0, 0, 0, 3], [8, 6, 3, 0, 0, 2, 4, 0, 7], [1, 9, 7, 0, 4, 5, 2, 0, 0], [6, 1, 4, 7, 5, 8, 9, 0, 0], [0, 0, 2, 9, 1, 0, 5, 6, 8], [9, 0, 0, 0, 0, 3, 7, 4, 0]] }
-        ];
+        const testBoard = [[5, 3, 4, 6, 7, 8, 9, 1, 2], [6, 7, 2, 1, 9, 5, 3, 4, 8], [1, 9, 8, 3, 4, 2, 5, 6, 7], [8, 5, 9, 7, 6, 1, 4, 2, 3], [4, 2, 6, 8, 5, 3, 7, 9, 1], [7, 1, 3, 9, 2, 4, 8, 5, 6], [9, 6, 1, 5, 3, 7, 2, 8, 4], [2, 8, 7, 4, 1, 9, 6, 3, 5], [3, 4, 5, 2, 8, 6, 1, 7, 0]];
 
         const menuScreen = document.getElementById('menu-screen');
         const gameScreen = document.getElementById('game-screen');
@@ -381,17 +373,134 @@
         let isCleared = false; 
         let isUnlimitedHints = false; 
 
-        function initMenu() {
-            const stageListDiv = document.querySelector('.stage-list');
-            stageListDiv.innerHTML = ""; 
+        function formatTime(totalSeconds) {
+            const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+            return `${minutes}:${seconds}`;
+        }
+
+        function changeTab(difficulty) {
+            playClickSound();
+            currentDifficulty = difficulty;
             
-            stagesData.forEach((stage, index) => {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const gridContainer = document.getElementById('stage-grid-area');
+            if(difficulty === 'master') {
+                gridContainer.classList.add('premium');
+            } else {
+                gridContainer.classList.remove('premium');
+            }
+
+            renderStageGrid();
+        }
+
+        function getFreeStageCount(diff) {
+            return diff === 'master' ? 0 : 10;
+        }
+
+        function renderStageGrid() {
+            const grid = document.getElementById('stage-grid');
+            grid.innerHTML = ""; 
+
+            // ★ここで「外部ファイル内の配列の長さ」を正確に取得します
+            const currentStageList = stagesDataMap[currentDifficulty];
+            const maxStage = currentStageList.length;
+
+            if (maxStage === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.style.gridColumn = '1 / -1';
+                emptyMsg.style.textAlign = 'center';
+                emptyMsg.style.color = '#fff';
+                emptyMsg.innerHTML = 'データがありません。<br>外部ファイルに問題を追加してください！';
+                grid.appendChild(emptyMsg);
+                return;
+            }
+
+            const diffName = getDifficultyName(currentDifficulty);
+            const unlockedPacks = savedData.unlockedPacks[currentDifficulty] || 0;
+            const freeCount = getFreeStageCount(currentDifficulty);
+            const maxPlayable = freeCount + (unlockedPacks * 100);
+
+            for (let i = 1; i <= maxStage; i++) {
+                const stageFullName = `${diffName} ${i}`;
+                const isLocked = i > maxPlayable; 
+                const isCleared = savedData.cleared[stageFullName];
+                const bestTimeSec = savedData.bestTimes[stageFullName];
+
                 const btn = document.createElement('button');
-                btn.className = index === 0 ? 'stage-btn test-btn' : 'stage-btn';
-                btn.innerText = stage.title;
-                btn.onclick = () => startStage(index);
-                stageListDiv.appendChild(btn);
-            });
+                btn.className = 'stage-btn';
+                
+                if (isLocked) {
+                    btn.classList.add('locked');
+                    btn.innerHTML = `<span>${i}</span>`;
+                } else if (isCleared) {
+                    btn.classList.add('cleared');
+                    btn.innerHTML = `<span class="stage-num">${i}</span><span class="best-time-label">${formatTime(bestTimeSec)}</span>`;
+                } else {
+                    btn.innerHTML = `<span>${i}</span>`;
+                }
+                
+                btn.onclick = () => {
+                    playClickSound();
+                    if (isLocked) {
+                        promptPurchasePack();
+                    } else {
+                        // データ配列が足りていればそちらを、なければダミー盤面をロード
+                        if (currentStageList && currentStageList.length >= i) {
+                            startStage(stageFullName, currentStageList[i - 1].board);
+                        } else {
+                            startStage(stageFullName, testBoard);
+                        }
+                    }
+                };
+                grid.appendChild(btn);
+            }
+
+            const comingSoon = document.createElement('div');
+            comingSoon.style.gridColumn = '1 / -1'; 
+            comingSoon.style.textAlign = 'center';
+            comingSoon.style.padding = '20px 0 10px 0';
+            comingSoon.style.color = 'rgba(255,255,255,0.9)';
+            comingSoon.style.fontWeight = 'bold';
+            comingSoon.style.lineHeight = '1.5';
+            comingSoon.innerHTML = `🔒 ${maxStage + 1}〜 Coming Soon...<br><span style="font-size:0.85rem; font-weight:normal;">さらなる問題を現在作成中です！</span>`;
+            grid.appendChild(comingSoon);
+        }
+
+        function getDifficultyName(diff) {
+            const names = { 'beginner': '初級', 'intermediate': '中級', 'advanced': '上級', 'master': '達人級' };
+            return names[diff] || '';
+        }
+
+        function promptPurchasePack() {
+            const diffName = getDifficultyName(currentDifficulty);
+            const currentPacks = savedData.unlockedPacks[currentDifficulty] || 0;
+            const freeCount = getFreeStageCount(currentDifficulty);
+            
+            const nextStart = freeCount + 1 + (currentPacks * 100);
+            const nextEnd = nextStart + 99;
+
+            const wantsToBuy = confirm(`ここから先は有料ステージです。\n\n「${diffName} 追加100ステージパック（100円）」を購入して、ステージ${nextStart}〜${nextEnd}を解放しますか？`);
+            
+            if (wantsToBuy) {
+                // 本番仕様：別タブでStripe決済画面を開く
+                window.open(STRIPE_LINKS[currentDifficulty], '_blank');
+                setTimeout(() => {
+                    const isPaid = confirm("【決済確認】\n別タブでの決済は完了しましたか？\n（※プロトタイプ版のため「OK」を押すとパックが解放されます）");
+                    if (isPaid) {
+                        alert(`ありがとうございます！${diffName}のステージ${nextStart}〜${nextEnd}が遊べるようになりました！`);
+                        savedData.unlockedPacks[currentDifficulty] = currentPacks + 1;
+                        saveGameData(); 
+                        renderStageGrid(); 
+                    }
+                }, 1000); 
+            }
+        }
+
+        function initMenu() {
+            renderStageGrid();
         }
 
         function selectCoach(coachType) {
@@ -421,7 +530,6 @@
 
         function setCoachState(state) {
             stopHappyAnimation(); 
-            
             if (state === 'happy') {
                 startHappyAnimation(); 
             } else {
@@ -430,12 +538,15 @@
             aiCharacterArea.className = 'ai-character-area ' + state;
         }
 
-        function startStage(stageIndex) {
+        function startStage(title, boardData) {
             playStartSound(); 
-            const stage = stagesData[stageIndex];
-            currentOriginalBoard = JSON.parse(JSON.stringify(stage.board));
-            currentBoardData = JSON.parse(JSON.stringify(stage.board));
-            stageTitle.innerText = stage.title;
+            
+            playSessionId++; 
+            isThinking = false; 
+
+            currentOriginalBoard = JSON.parse(JSON.stringify(boardData));
+            currentBoardData = JSON.parse(JSON.stringify(boardData));
+            stageTitle.innerText = title;
 
             hintsRemaining = 3;
             isCleared = false;
@@ -446,6 +557,7 @@
             hintBtn.classList.remove('upsell-mode');
             hintBtn.innerText = `AIにヒントを聞く (残り${hintsRemaining}回)`;
             hintArea.style.display = 'none';
+            loadingDisplay.style.display = 'none';
             clearModal.style.display = 'none';
 
             setCoachState('normal');
@@ -460,8 +572,11 @@
             playClickSound(); 
             stopTimer();
             stopHappyAnimation(); 
+            playSessionId++; 
+            isThinking = false;
             gameScreen.style.display = 'none';
             menuScreen.style.display = 'flex';
+            renderStageGrid(); 
         }
 
         function startTimer() {
@@ -469,10 +584,8 @@
             timerDisplay.innerText = "00:00";
             startTime = Date.now();
             timerInterval = setInterval(() => {
-                const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
-                const minutes = Math.floor(elapsedSeconds / 60).toString().padStart(2, '0');
-                const seconds = (elapsedSeconds % 60).toString().padStart(2, '0');
-                timerDisplay.innerText = `${minutes}:${seconds}`;
+                const totalSeconds = Math.floor((Date.now() - startTime) / 1000);
+                timerDisplay.innerText = formatTime(totalSeconds);
             }, 1000);
         }
 
@@ -501,7 +614,7 @@
         }
 
         function selectCell(r, c) {
-            if (isCleared || currentOriginalBoard[r][c] !== 0) return; 
+            if (isCleared || currentOriginalBoard[r][c] !== 0 || isThinking) return; 
             playClickSound(); 
             document.querySelectorAll('.selected').forEach(cell => cell.classList.remove('selected'));
             clearHighlights();
@@ -510,7 +623,7 @@
         }
 
         function inputNumber(num) {
-            if (isCleared || !selectedCell) return;
+            if (isCleared || !selectedCell || isThinking) return;
             const r = selectedCell.r;
             const c = selectedCell.c;
             currentBoardData[r][c] = num;
@@ -574,6 +687,16 @@
                 setCoachState('happy');
                 playClearSound(); 
 
+                const currentStageName = stageTitle.innerText;
+                const totalSeconds = Math.floor((Date.now() - startTime) / 1000);
+                
+                savedData.cleared[currentStageName] = true;
+                
+                if (!savedData.bestTimes[currentStageName] || totalSeconds < savedData.bestTimes[currentStageName]) {
+                    savedData.bestTimes[currentStageName] = totalSeconds;
+                }
+                saveGameData(); 
+
                 setTimeout(() => {
                     document.getElementById('final-time').innerText = timerDisplay.innerText;
                     clearModal.style.display = 'flex';
@@ -588,15 +711,16 @@
         }
 
         async function getHint() {
+            if (isThinking) return; 
             playClickSound(); 
+            
             if (hintsRemaining <= 0 && !isUnlimitedHints) {
-                const wantsToBuy = confirm("1ステージの無料ヒント枠（3回）を使い切りました。\n\n「AIヒント使い放題パック（100円）」を購入して、このステージの続きをAIと一緒に解きますか？\n\n※「OK」を押すとStripeの決済画面（テスト用）が開きます。");
+                const wantsToBuy = confirm("1ステージの無料ヒント枠（3回）を使い切りました。\n\n「AIヒント使い放題パック（100円）」を購入して、このステージの続きをAIと一緒に解きますか？\n\n※「OK」を押すとStripeの決済画面が開きます。");
                 
                 if (wantsToBuy) {
-                    window.open(STRIPE_PAYMENT_LINK, '_blank');
-                    
+                    window.open(STRIPE_LINKS.hint, '_blank');
                     setTimeout(() => {
-                        const isPaid = confirm("【プロトタイプ用テスト】\n別タブでの決済は完了しましたか？\n（※「OK」を押すと使い放題が解放されます）");
+                        const isPaid = confirm("【決済確認】\n別タブでの決済は完了しましたか？\n（※プロトタイプ版のため「OK」を押すと使い放題が解放されます）");
                         if (isPaid) {
                             isUnlimitedHints = true;
                             hintBtn.classList.remove('upsell-mode');
@@ -604,12 +728,14 @@
                             alert("ありがとうございます！ヒントが使い放題になりました！");
                         }
                     }, 1000); 
-                    
                     return; 
                 } else {
                     return;
                 }
             }
+
+            isThinking = true;
+            const currentSession = playSessionId; 
 
             hintBtn.disabled = true;
             hintBtn.innerText = "思考中...";
@@ -625,9 +751,14 @@
                     method: 'POST',
                     body: JSON.stringify(currentBoardData)
                 });
+                
+                if (currentSession !== playSessionId) return;
+
                 if (!response.ok) throw new Error('通信エラーが発生しました。');
                 const result = await response.json();
                 
+                if (currentSession !== playSessionId) return; 
+
                 if (result.success && result.hint) {
                     if (!isUnlimitedHints) {
                         hintsRemaining--;
@@ -638,20 +769,24 @@
                     hintArea.style.display = 'block';
                 }
             } catch (error) {
+                if (currentSession !== playSessionId) return;
                 hintArea.innerText = `エラーが発生しました: ${error.message}`;
                 hintArea.style.display = 'block';
             } finally {
-                loadingDisplay.style.display = 'none';
-                hintBtn.disabled = false;
-                setCoachState('normal');
-                
-                if (isUnlimitedHints) {
-                    hintBtn.innerText = "AIにヒントを聞く (使い放題✨)";
-                } else if (hintsRemaining > 0) {
-                    hintBtn.innerText = `AIにヒントを聞く (残り${hintsRemaining}回)`;
-                } else {
-                    hintBtn.innerText = "💎 ヒント使い放題を解放する";
-                    hintBtn.classList.add('upsell-mode');
+                if (currentSession === playSessionId) {
+                    isThinking = false;
+                    loadingDisplay.style.display = 'none';
+                    hintBtn.disabled = false;
+                    setCoachState('normal');
+                    
+                    if (isUnlimitedHints) {
+                        hintBtn.innerText = "AIにヒントを聞く (使い放題✨)";
+                    } else if (hintsRemaining > 0) {
+                        hintBtn.innerText = `AIにヒントを聞く (残り${hintsRemaining}回)`;
+                    } else {
+                        hintBtn.innerText = "💎 ヒント使い放題を解放する";
+                        hintBtn.classList.add('upsell-mode');
+                    }
                 }
             }
         }
@@ -672,7 +807,6 @@
         }
 
         hintBtn.addEventListener('click', getHint);
-
         window.onload = initMenu;
 
     </script>
