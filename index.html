@@ -132,13 +132,6 @@
         .back-btn { background-color: #95a5a6; color: white; border: 4px solid #7f8c8d; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 12px; cursor: pointer; width: 80%; box-shadow: 0 4px 0px #7f8c8d; transition: all 0.1s; font-family: 'M PLUS Rounded 1c', sans-serif; text-decoration: none; display: block; text-align: center; box-sizing: border-box; }
         .back-btn:active { transform: translateY(4px); box-shadow: 0 0px 0px #7f8c8d; }
 
-        #clear-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background-color: #fff; padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 320px; border: 6px solid #f1c40f; box-shadow: 0 10px 0px #f39c12; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .modal-title { font-size: 2.2rem; color: #e74c3c; margin-top: 0; margin-bottom: 15px; font-weight: bold; text-shadow: 2px 2px 0px #f1c40f; }
-        .modal-time { font-size: 1.4rem; color: #2c3e50; margin-bottom: 25px; font-weight: bold; }
-        .modal-btn { background-color: #2ecc71; color: white; border: 4px solid #27ae60; padding: 15px 24px; font-size: 1.2rem; font-weight: bold; border-radius: 30px; cursor: pointer; width: 100%; box-shadow: 0 5px 0px #27ae60; text-shadow: 1px 1px 0px #222; transition: all 0.1s; font-family: 'M PLUS Rounded 1c', sans-serif; }
-        .modal-btn:active { transform: translateY(5px); box-shadow: 0 0px 0px #27ae60; }
-
         /* リセットボタン（テスト用） */
         .reset-btn { font-size: 0.8rem; color: #999; text-decoration: underline; cursor: pointer; margin-top: 15px; background: none; border: none; }
 
@@ -715,7 +708,7 @@
             playClickSound(); 
             
             if (hintsRemaining <= 0 && !isUnlimitedHints) {
-                const wantsToBuy = confirm("1ステージの無料ヒント枠（3回）を使い切りました。\n\n「AIヒント使い放題パック（100円）」を購入して、このステージの続きをAIと一緒に解きますか？\n\n※「OK」を押すとStripeの決済画面が開きます。");
+                const wantsToBuy = confirm("1ステージの無料ヒント枠（3回）を使い切りました。\n\n「AIヒント使い放題パック（100円）」を購入して、このステージの続きをAIと一緒に解きますか？");
                 
                 if (wantsToBuy) {
                     window.open(STRIPE_LINKS.hint, '_blank');
@@ -747,9 +740,15 @@
             setCoachState('thinking');
 
             try {
+                // ★ 変更点：初期盤面と現在の盤面の両方をGASに送る
+                const payloadData = {
+                    originalBoard: currentOriginalBoard,
+                    currentBoard: currentBoardData
+                };
+
                 const response = await fetch(GAS_WEB_APP_URL, {
                     method: 'POST',
-                    body: JSON.stringify(currentBoardData)
+                    body: JSON.stringify(payloadData)
                 });
                 
                 if (currentSession !== playSessionId) return;
@@ -791,15 +790,18 @@
             }
         }
 
+        // ★ 変更点：AIからの返答をそのまま表示し、指定マスをハイライト
         function displayHint(hint) {
             playClickSound(); 
             const r = parseInt(hint.target_row) - 1;
             const c = parseInt(hint.target_col) - 1;
-            hintArea.innerText = `コーチのヒント：\n(${r+1}行, ${c+1}列) に「${hint.answer_number}」が入ります。\n理由: ${hint.explanation}`;
+            
+            hintArea.innerText = `コーチのヒント：\n${hint.explanation}`;
             hintArea.style.display = 'block';
+            
             const targetCell = document.getElementById(`cell-${r}-${c}`);
             targetCell.classList.add('highlight');
-            selectCell(r, c);
+            selectCell(r, c); // ユーザーがすぐ消せるようにマスを選択状態にする
         }
 
         function clearHighlights() {
