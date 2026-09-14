@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AIコーチ付きナンプレ</title>
+    <!-- PWA用 manifest -->
     <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700&display=swap" rel="stylesheet">
     <style>
@@ -130,7 +131,6 @@
 </head>
 <body>
 
-    <!-- メニュー画面 -->
     <div id="menu-screen">
         <h1>AIコーチ付きナンプレ</h1>
         
@@ -162,7 +162,6 @@
         <button class="reset-btn" onclick="resetSaveData()">🔄 セーブデータをリセット（テスト用）</button>
     </div>
 
-    <!-- ゲーム画面 -->
     <div id="game-screen" style="display: none;">
         <div class="top-info-wrapper">
             <div class="header-area">
@@ -190,7 +189,6 @@
         </div>
     </div>
 
-    <!-- クリアモーダル -->
     <div id="clear-modal" style="display: none;">
         <div class="modal-content">
             <div class="modal-title">🎉 クリア！ 🎉</div>
@@ -203,11 +201,11 @@
     <script src="stages_advanced.js"></script><script src="stages_master.js"></script>
 
     <script>
-        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); }); }
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(e => console.log('SW登録スキップ')); }); }
 
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzyvzJeCKPbw8Y2Phz5hAcKWovpk3JiPVu-_Ij4noKMCv7z7md-31o2tROvd0MVmTYjGg/exec";
         
-        // ★ 提供いただいた5つのリンクをセットしました
+        // 本番用Stripeリンク
         const STRIPE_LINKS = {
             hint: "https://buy.stripe.com/test_00wfZj6KO1KXaWWdkRfMA00",
             beginner: "https://buy.stripe.com/test_4gM5kF0mq3T5ghgeoVfMA01",
@@ -278,8 +276,8 @@
 
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx;
-        function initAudio() { if (!audioCtx) audioCtx = new AudioContext(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
-        function playTone(freq, type, duration, vol=0.1) { initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime); gain.gain.setValueAtTime(vol, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + duration); }
+        function initAudio() { try { if (!audioCtx) audioCtx = new AudioContext(); if (audioCtx.state === 'suspended') audioCtx.resume(); } catch(e){} }
+        function playTone(freq, type, duration, vol=0.1) { try { initAudio(); if(!audioCtx)return; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime); gain.gain.setValueAtTime(vol, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + duration); } catch(e){} }
         function playClickSound() { playTone(600, 'sine', 0.1, 0.1); }
         function playErrorSound() { playTone(150, 'sawtooth', 0.3, 0.15); }
         function playStartSound() { playTone(400, 'square', 0.1, 0.05); setTimeout(() => playTone(600, 'square', 0.15, 0.05), 100); }
@@ -318,23 +316,31 @@
                 else { btn.innerHTML = `<span>${i}</span>`; }
                 
                 btn.onclick = () => {
-                    playClickSound();
-                    if (isLocked) { promptPurchasePack(diffName, freeCount, unlockedPacks); }
-                    else { startStage(stageFullName, currentStageList.length >= i ? currentStageList[i - 1].board : testBoard); }
+                    try { playClickSound(); } catch(e){}
+                    if (isLocked) { 
+                        promptPurchasePack(diffName, freeCount, unlockedPacks); 
+                    } else { 
+                        // 安全装置：データが変な形でも絶対にエラーで止まらないようにする
+                        let bData = testBoard;
+                        if (currentStageList && currentStageList.length >= i && currentStageList[i - 1]) {
+                            bData = currentStageList[i - 1].board || testBoard;
+                        }
+                        startStage(stageFullName, bData); 
+                    }
                 };
                 grid.appendChild(btn);
             }
             grid.innerHTML += `<div style="grid-column:1/-1;text-align:center;padding:20px 0;color:rgba(255,255,255,0.9);font-weight:bold;">🔒 ${maxStage + 1}〜 Coming Soon...<br><span style="font-size:0.85rem;font-weight:normal;">さらなる問題を現在作成中です！</span></div>`;
         }
 
-        // 改行エラーを防ぐため安全な文字列連結に変更
+        // 決済確認の安全な文字列生成
         function promptPurchasePack(diffName, freeCount, currentPacks) {
-            const nextStart = freeCount + 1 + (currentPacks * 100);
-            const nextEnd = nextStart + 99;
             const msg = "ここから先は有料ステージです。\n\n「" + diffName + " 追加100ステージパック（100円）」を購入しますか？";
             if (confirm(msg)) {
                 if (STRIPE_LINKS[currentDifficulty]) {
                     window.location.href = STRIPE_LINKS[currentDifficulty];
+                } else {
+                    alert("リンクが設定されていません。");
                 }
             }
         }
@@ -346,7 +352,8 @@
         }
 
         function purchaseHintDuringGame() {
-            if (confirm("ヒント枠がありません。\n「AIヒントチケット（100回分/100円）」を購入しますか？\n\n※決済後、現在の盤面から自動的に再開されます。")) {
+            const msg = "ヒント枠がありません。\n「AIヒントチケット（100回分/100円）」を購入しますか？\n\n※決済後、現在の盤面から自動的に再開されます。";
+            if (confirm(msg)) {
                 const totalSeconds = elapsedSecondsOffset + Math.floor((Date.now() - startTime) / 1000);
                 savedData.activeGame = {
                     title: stageTitle.innerText, originalBoard: currentOriginalBoard, currentBoard: currentBoardData,
@@ -359,13 +366,22 @@
 
         function initMenu() { updateTicketDisplay(); renderStageGrid(); }
 
-        function selectCoach(type) { playClickSound(); currentCoach = type; document.querySelectorAll('.coach-btn').forEach(b => b.classList.remove('active')); document.getElementById(`coach-${type}`).classList.add('active'); coachImage.src = coachImages[currentCoach].normal; }
+        function selectCoach(type) { try { playClickSound(); } catch(e){} currentCoach = type; document.querySelectorAll('.coach-btn').forEach(b => b.classList.remove('active')); document.getElementById(`coach-${type}`).classList.add('active'); coachImage.src = coachImages[currentCoach].normal; }
         function setCoachState(state) { stopHappyAnimation(); if(state==='happy'){ let a=true; coachImage.src=coachImages[currentCoach].happy_a; happyAnimationInterval=setInterval(()=>{a=!a;coachImage.src=a?coachImages[currentCoach].happy_a:coachImages[currentCoach].happy_b;},500); } else { coachImage.src=coachImages[currentCoach][state]; } aiCharacterArea.className = 'ai-character-area ' + state; }
         function stopHappyAnimation() { if(happyAnimationInterval){ clearInterval(happyAnimationInterval); happyAnimationInterval=null; } }
 
         function startStage(title, boardData) {
-            playStartSound(); playSessionId++; isThinking = false; isCleared = false; selectedCell = null;
-            currentOriginalBoard = JSON.parse(JSON.stringify(boardData)); currentBoardData = JSON.parse(JSON.stringify(boardData));
+            try { playStartSound(); } catch(e){} 
+            playSessionId++; isThinking = false; isCleared = false; selectedCell = null;
+            
+            // 防弾処理：盤面データが壊れていたらテスト盤面を使う
+            let safeBoard = boardData;
+            if (!safeBoard || !Array.isArray(safeBoard) || safeBoard.length !== 9) {
+                safeBoard = testBoard;
+            }
+            
+            currentOriginalBoard = JSON.parse(JSON.stringify(safeBoard)); 
+            currentBoardData = JSON.parse(JSON.stringify(safeBoard));
             stageTitle.innerText = title;
             freeHintsRemaining = 3; elapsedSecondsOffset = 0;
             setupGameUI();
@@ -385,7 +401,7 @@
             menuScreen.style.display = 'none'; gameScreen.style.display = 'flex';
         }
 
-        function backToMenu() { playClickSound(); stopTimer(); stopHappyAnimation(); playSessionId++; isThinking = false; gameScreen.style.display = 'none'; menuScreen.style.display = 'flex'; updateTicketDisplay(); renderStageGrid(); }
+        function backToMenu() { try { playClickSound(); } catch(e){} stopTimer(); stopHappyAnimation(); playSessionId++; isThinking = false; gameScreen.style.display = 'none'; menuScreen.style.display = 'flex'; updateTicketDisplay(); renderStageGrid(); }
 
         function startTimer() {
             stopTimer(); startTime = Date.now();
@@ -407,7 +423,7 @@
             }
         }
 
-        function selectCell(r, c) { if (isCleared || currentOriginalBoard[r][c] !== 0 || isThinking) return; playClickSound(); document.querySelectorAll('.selected').forEach(c => c.classList.remove('selected')); document.querySelectorAll('.highlight').forEach(c => c.classList.remove('highlight')); selectedCell = { r, c }; document.getElementById(`cell-${r}-${c}`).classList.add('selected'); }
+        function selectCell(r, c) { if (isCleared || currentOriginalBoard[r][c] !== 0 || isThinking) return; try { playClickSound(); } catch(e){} document.querySelectorAll('.selected').forEach(c => c.classList.remove('selected')); document.querySelectorAll('.highlight').forEach(c => c.classList.remove('highlight')); selectedCell = { r, c }; document.getElementById(`cell-${r}-${c}`).classList.add('selected'); }
 
         function inputNumber(num) {
             if (isCleared || !selectedCell || isThinking) return;
@@ -440,7 +456,7 @@
                 saveGameData(); setTimeout(() => { document.getElementById('final-time').innerText = timerDisplay.innerText; clearModal.style.display = 'flex'; }, 1000); 
             }
         }
-        function closeClearModal() { playClickSound(); clearModal.style.display = 'none'; backToMenu(); }
+        function closeClearModal() { try { playClickSound(); } catch(e){} clearModal.style.display = 'none'; backToMenu(); }
 
         function updateHintButtonText() {
             hintBtn.classList.remove('upsell-mode');
@@ -450,7 +466,7 @@
         }
 
         async function getHint() {
-            if (isThinking) return; playClickSound(); 
+            if (isThinking) return; try { playClickSound(); } catch(e){}
             
             if (freeHintsRemaining <= 0 && (!savedData.hintTickets || savedData.hintTickets <= 0)) {
                 purchaseHintDuringGame(); return; 
