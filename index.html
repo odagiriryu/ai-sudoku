@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AIコーチ付きナンプレ</title>
-    <!-- PWA用 manifest -->
     <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700&display=swap" rel="stylesheet">
     <style>
@@ -205,7 +204,6 @@
 
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzyvzJeCKPbw8Y2Phz5hAcKWovpk3JiPVu-_Ij4noKMCv7z7md-31o2tROvd0MVmTYjGg/exec";
         
-        // 本番用Stripeリンク
         const STRIPE_LINKS = {
             hint: "https://buy.stripe.com/test_00wfZj6KO1KXaWWdkRfMA00",
             beginner: "https://buy.stripe.com/test_4gM5kF0mq3T5ghgeoVfMA01",
@@ -315,17 +313,21 @@
                 else if (isCleared) { btn.classList.add('cleared'); btn.innerHTML = `<span class="stage-num">${i}</span><span class="best-time-label">${formatTime(savedData.bestTimes[stageFullName])}</span>`; }
                 else { btn.innerHTML = `<span>${i}</span>`; }
                 
+                // ★エラー検知器付きクリック処理
                 btn.onclick = () => {
-                    try { playClickSound(); } catch(e){}
-                    if (isLocked) { 
-                        promptPurchasePack(diffName, freeCount, unlockedPacks); 
-                    } else { 
-                        // 安全装置：データが変な形でも絶対にエラーで止まらないようにする
-                        let bData = testBoard;
-                        if (currentStageList && currentStageList.length >= i && currentStageList[i - 1]) {
-                            bData = currentStageList[i - 1].board || testBoard;
+                    try {
+                        try { playClickSound(); } catch(e){}
+                        if (isLocked) { 
+                            promptPurchasePack(diffName, freeCount, unlockedPacks); 
+                        } else { 
+                            let bData = testBoard;
+                            if (currentStageList && currentStageList.length >= i && currentStageList[i - 1]) {
+                                bData = currentStageList[i - 1].board || testBoard;
+                            }
+                            startStage(stageFullName, bData); 
                         }
-                        startStage(stageFullName, bData); 
+                    } catch (err) {
+                        alert("システムエラーを検知しました！\n詳細: " + err.message);
                     }
                 };
                 grid.appendChild(btn);
@@ -333,14 +335,11 @@
             grid.innerHTML += `<div style="grid-column:1/-1;text-align:center;padding:20px 0;color:rgba(255,255,255,0.9);font-weight:bold;">🔒 ${maxStage + 1}〜 Coming Soon...<br><span style="font-size:0.85rem;font-weight:normal;">さらなる問題を現在作成中です！</span></div>`;
         }
 
-        // 決済確認の安全な文字列生成
         function promptPurchasePack(diffName, freeCount, currentPacks) {
             const msg = "ここから先は有料ステージです。\n\n「" + diffName + " 追加100ステージパック（100円）」を購入しますか？";
             if (confirm(msg)) {
                 if (STRIPE_LINKS[currentDifficulty]) {
                     window.location.href = STRIPE_LINKS[currentDifficulty];
-                } else {
-                    alert("リンクが設定されていません。");
                 }
             }
         }
@@ -374,7 +373,6 @@
             try { playStartSound(); } catch(e){} 
             playSessionId++; isThinking = false; isCleared = false; selectedCell = null;
             
-            // 防弾処理：盤面データが壊れていたらテスト盤面を使う
             let safeBoard = boardData;
             if (!safeBoard || !Array.isArray(safeBoard) || safeBoard.length !== 9) {
                 safeBoard = testBoard;
