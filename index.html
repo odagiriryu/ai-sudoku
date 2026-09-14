@@ -155,7 +155,7 @@
 
         <div id="stage-grid-area" class="stage-grid-container">
             <div class="stage-grid" id="stage-grid"></div>
-            <div style="text-align: center; margin-top: 15px; font-size: 0.8rem; color: rgba(255,255,255,0.8);">※データはこのブラウザに保存されます。履歴を消去するとデータも消えます。</div>
+            <!-- ここにあった危険な文字を削除し、安全な方法で追加するように修正しました -->
         </div>
         
         <button class="reset-btn" onclick="resetSaveData()">🔄 セーブデータをリセット（テスト用）</button>
@@ -200,6 +200,7 @@
     <script src="stages_advanced.js"></script><script src="stages_master.js"></script>
 
     <script>
+        // PWAのキャッシュを最新(v2)にするための記述
         if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(e => console.log('SW登録スキップ')); }); }
 
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzyvzJeCKPbw8Y2Phz5hAcKWovpk3JiPVu-_Ij4noKMCv7z7md-31o2tROvd0MVmTYjGg/exec";
@@ -313,7 +314,7 @@
                 else if (isCleared) { btn.classList.add('cleared'); btn.innerHTML = `<span class="stage-num">${i}</span><span class="best-time-label">${formatTime(savedData.bestTimes[stageFullName])}</span>`; }
                 else { btn.innerHTML = `<span>${i}</span>`; }
                 
-                // ★エラー検知器付きクリック処理
+                // バグ修正：確実にクリックイベントが発動するようになりました
                 btn.onclick = () => {
                     try {
                         try { playClickSound(); } catch(e){}
@@ -332,7 +333,12 @@
                 };
                 grid.appendChild(btn);
             }
-            grid.innerHTML += `<div style="grid-column:1/-1;text-align:center;padding:20px 0;color:rgba(255,255,255,0.9);font-weight:bold;">🔒 ${maxStage + 1}〜 Coming Soon...<br><span style="font-size:0.85rem;font-weight:normal;">さらなる問題を現在作成中です！</span></div>`;
+            
+            // ★原因だったバグ修正：DOMを破壊せずに安全に文字を追加する
+            const comingSoon = document.createElement('div');
+            comingSoon.style.cssText = "grid-column:1/-1; text-align:center; padding:20px 0 10px 0; color:rgba(255,255,255,0.9); font-weight:bold;";
+            comingSoon.innerHTML = `🔒 ${maxStage + 1}〜 Coming Soon...<br><span style="font-size:0.85rem;font-weight:normal;">さらなる問題を現在作成中です！</span><br><br><span style="font-size:0.8rem;color:rgba(255,255,255,0.8);">※データはこのブラウザに保存されます。履歴を消去するとデータも消えます。</span>`;
+            grid.appendChild(comingSoon);
         }
 
         function promptPurchasePack(diffName, freeCount, currentPacks) {
