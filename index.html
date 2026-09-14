@@ -4,102 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AIコーチ付きナンプレ</title>
+    <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'M PLUS Rounded 1c', sans-serif; 
-            background-color: #fdf6e3; 
-            color: #4a4a4a;
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; 
-            min-height: 100vh; margin: 0; padding-top: 15px; touch-action: manipulation; 
-        }
-        
+        body { font-family: 'M PLUS Rounded 1c', sans-serif; background-color: #fdf6e3; color: #4a4a4a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; margin: 0; padding-top: 15px; touch-action: manipulation; }
         #menu-screen, #game-screen { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; }
+        h1 { color: #d35400; font-size: 2rem; margin-bottom: 10px; text-align: center; text-shadow: 2px 2px 0px #f39c12; letter-spacing: 2px; }
         
-        h1 { color: #d35400; font-size: 2rem; margin-bottom: 20px; text-align: center; text-shadow: 2px 2px 0px #f39c12; letter-spacing: 2px; }
-        
+        .ticket-info-area { background-color: #fff; border: 3px solid #f1c40f; border-radius: 10px; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; width: 90%; margin-bottom: 20px; box-shadow: 0 4px 0px rgba(0,0,0,0.05); box-sizing: border-box; }
+        .ticket-count { font-size: 1.1rem; font-weight: bold; color: #333; }
+        .ticket-buy-btn { background-color: #f1c40f; color: #d35400; border: none; padding: 8px 12px; font-weight: bold; border-radius: 20px; cursor: pointer; box-shadow: 0 3px 0px #f39c12; transition: all 0.1s; }
+        .ticket-buy-btn:active { transform: translateY(3px); box-shadow: 0 0px 0px #f39c12; }
+
         .section-title { color: #666; font-size: 1.1rem; margin-bottom: 15px; font-weight: bold; text-align: center; border-bottom: 3px dashed #ccc; padding-bottom: 5px; width: 80%; }
 
         .coach-selection { display: flex; gap: 15px; margin-bottom: 20px; width: 90%; justify-content: center; }
-        .coach-btn { 
-            background-color: #fff; border: 4px solid #bdc3c7; border-radius: 12px; padding: 0; overflow: hidden; cursor: pointer; 
-            transition: all 0.2s; box-shadow: 0 4px 0px #bdc3c7; display: flex; align-items: center; justify-content: center;
-            flex: 1; max-width: 90px; height: 90px;
-        }
-        .coach-btn:active { transform: translateY(4px); box-shadow: 0 0px 0px #bdc3c7; }
+        .coach-btn { background-color: #fff; border: 4px solid #bdc3c7; border-radius: 12px; padding: 0; overflow: hidden; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 0px #bdc3c7; display: flex; align-items: center; justify-content: center; flex: 1; max-width: 90px; height: 90px; }
         .coach-btn.active { border-color: #e74c3c; background-color: #ffeaea; box-shadow: 0 4px 0px #e74c3c; transform: translateY(-2px); }
         .coach-btn img { width: 100%; height: 100%; image-rendering: pixelated; object-fit: contain; transform: scale(1.5); }
         .coach-label { font-size: 1rem; color: #4a4a4a; text-align: center; font-weight: bold; margin-top: 5px; }
 
         .tabs { display: flex; width: 95%; justify-content: space-between; margin-bottom: 15px; gap: 5px; }
-        .tab-btn {
-            flex: 1; padding: 10px 5px; font-size: 1rem; font-weight: bold; border-radius: 10px 10px 0 0;
-            background-color: #ecf0f1; border: 3px solid #bdc3c7; border-bottom: none; color: #7f8c8d;
-            cursor: pointer; transition: all 0.2s; font-family: 'M PLUS Rounded 1c', sans-serif;
-        }
+        .tab-btn { flex: 1; padding: 10px 5px; font-size: 1rem; font-weight: bold; border-radius: 10px 10px 0 0; background-color: #ecf0f1; border: 3px solid #bdc3c7; border-bottom: none; color: #7f8c8d; cursor: pointer; transition: all 0.2s; font-family: 'M PLUS Rounded 1c', sans-serif; }
         .tab-btn.active { background-color: #3498db; color: white; border-color: #2980b9; box-shadow: 0 -3px 0px rgba(0,0,0,0.1) inset; }
         .tab-btn.premium { color: #f39c12; }
         .tab-btn.premium.active { background-color: #2c3e50; color: #f1c40f; border-color: #1a252f; }
 
-        .stage-grid-container {
-            background-color: #3498db; width: 95%; padding: 15px; border-radius: 0 0 12px 12px;
-            border: 4px solid #2980b9; box-shadow: 0 5px 0px #2980b9; box-sizing: border-box; margin-bottom: 20px;
-            max-height: 400px; overflow-y: auto;
-        }
+        .stage-grid-container { background-color: #3498db; width: 95%; padding: 15px; border-radius: 0 0 12px 12px; border: 4px solid #2980b9; box-shadow: 0 5px 0px #2980b9; box-sizing: border-box; margin-bottom: 20px; max-height: 400px; overflow-y: auto; }
         .stage-grid-container.premium { background-color: #2c3e50; border-color: #1a252f; box-shadow: 0 5px 0px #1a252f; }
 
         .stage-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-        
-        .stage-btn { 
-            background-color: #fff; color: #2980b9; border: 3px solid #bdc3c7; aspect-ratio: 1;
-            font-size: 1.6rem; font-weight: bold; border-radius: 10px; cursor: pointer; 
-            box-shadow: 0 4px 0px #bdc3c7; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-family: 'M PLUS Rounded 1c', sans-serif; transition: all 0.1s; position: relative;
-        }
+        .stage-btn { background-color: #fff; color: #2980b9; border: 3px solid #bdc3c7; aspect-ratio: 1; font-size: 1.6rem; font-weight: bold; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 0px #bdc3c7; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'M PLUS Rounded 1c', sans-serif; transition: all 0.1s; position: relative; }
         .stage-btn:active { transform: translateY(4px); box-shadow: 0 0px 0px #bdc3c7; }
-        
         .stage-btn.locked { background-color: #e0e0e0; color: #999; border-color: #b0b0b0; box-shadow: 0 4px 0px #b0b0b0; }
         .stage-btn.locked::after { content: '🔒'; position: absolute; font-size: 1.5rem; opacity: 0.8; }
         .stage-btn.locked span { opacity: 0.3; }
-        
-        .stage-btn.cleared { 
-            background-color: #fef9e7; color: #d35400; border-color: #f1c40f; box-shadow: 0 4px 0px #f39c12; 
-            justify-content: center; gap: 4px; position: relative; overflow: hidden;
-        }
-        .stage-btn.cleared::before { 
-            content: '👑'; position: absolute; font-size: 4.5rem; opacity: 0.15; 
-            top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 0;
-        }
+        .stage-btn.cleared { background-color: #fef9e7; color: #d35400; border-color: #f1c40f; box-shadow: 0 4px 0px #f39c12; overflow: hidden; }
+        .stage-btn.cleared::before { content: '👑'; position: absolute; font-size: 4.5rem; opacity: 0.15; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 0; }
         .stage-btn.cleared span.stage-num { font-size: 1.6rem; z-index: 1; position: relative; margin-top: -2px; }
         .best-time-label { font-size: 0.85rem; color: #e67e22; font-weight: bold; line-height: 1; z-index: 1; position: relative; letter-spacing: 0.5px;}
 
         .top-info-wrapper { display: flex; flex-direction: column; width: 90%; gap: 15px; margin-bottom: 20px; }
-        
         .header-area { display: flex; justify-content: space-between; align-items: center; background-color: #fff; padding: 10px 15px; border-radius: 10px; border: 3px solid #ccc; box-sizing: border-box; box-shadow: 0 4px 0px rgba(0,0,0,0.05); }
         #stage-title { color: #d35400; font-size: 1.3rem; font-weight: bold; margin: 0; }
         #timer { font-size: 1.4rem; font-weight: bold; color: #34495e; letter-spacing: 2px; }
 
-        .ai-character-area { 
-            width: 100%; height: 120px; background-color: #fff; border-radius: 15px; 
-            display: flex; align-items: flex-end; justify-content: center; 
-            border: 4px solid #7f8c8d; box-shadow: 0 6px 0px #7f8c8d; 
-            transition: all 0.3s ease; overflow: hidden; position: relative; box-sizing: border-box;
-        }
-        .ai-character-area::before {
-            content: ''; position: absolute; top: 5px; left: 5px; right: 5px; bottom: 5px;
-            border: 2px dashed #d5dbdb; border-radius: 10px; pointer-events: none;
-        }
+        .ai-character-area { width: 100%; height: 120px; background-color: #fff; border-radius: 15px; display: flex; align-items: flex-end; justify-content: center; border: 4px solid #7f8c8d; box-shadow: 0 6px 0px #7f8c8d; overflow: hidden; position: relative; box-sizing: border-box; }
+        .ai-character-area::before { content: ''; position: absolute; top: 5px; left: 5px; right: 5px; bottom: 5px; border: 2px dashed #d5dbdb; border-radius: 10px; pointer-events: none; }
         .ai-character-area.thinking { background-color: #fff8e1; border-color: #f39c12; box-shadow: 0 6px 0px #f39c12; }
         .ai-character-area.thinking::before { border-color: #fdebd0; }
         .ai-character-area.happy { background-color: #e8f5e9; border-color: #27ae60; box-shadow: 0 6px 0px #27ae60; }
         .ai-character-area.happy::before { border-color: #d5f5e3; }
-        
         #coach-image { max-height: 100%; width: auto; image-rendering: pixelated; object-fit: contain; z-index: 1; }
 
         .sudoku-container { background-color: #ecf0f1; padding: 8px; border-radius: 12px; box-shadow: 0 6px 0px #bdc3c7; border: 4px solid #7f8c8d; margin-bottom: 25px; }
         table { border-collapse: collapse; border: 4px solid #2c3e50; table-layout: fixed; background-color: #fff; margin: 0 auto; }
-        td { border: 1px solid #bdc3c7; width: 42px; height: 42px; max-width: 42px; max-height: 42px; box-sizing: border-box; text-align: center; vertical-align: middle; font-size: 1.8rem; font-weight: bold; color: #2c3e50; cursor: pointer; padding: 0; user-select: none; line-height: 1; transition: background-color 0.1s; }
-
+        td { border: 1px solid #bdc3c7; width: 42px; height: 42px; text-align: center; vertical-align: middle; font-size: 1.8rem; font-weight: bold; color: #2c3e50; cursor: pointer; padding: 0; user-select: none; line-height: 1; }
         td.fixed { color: #2980b9; background-color: #ebf5fb; cursor: default; }
         td.selected { background-color: #fff3e0; border: 3px solid #e67e22; font-size: 2rem; color: #d35400; z-index: 10; position: relative; }
         td.error { color: #e74c3c; background-color: #fdedec; font-weight: 900; animation: shake 0.3s; }
@@ -114,9 +74,9 @@
         tr:first-child td { border-top: 4px solid #2c3e50; }
 
         .numpad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; width: 95%; margin-bottom: 20px; }
-        .num-btn { background-color: #fdfefe; border: 3px solid #95a5a6; padding: 12px 0; font-size: 1.6rem; font-weight: bold; border-radius: 10px; color: #2c3e50; cursor: pointer; box-shadow: 0 5px 0px #95a5a6; transition: all 0.1s; font-family: 'M PLUS Rounded 1c', sans-serif; }
+        .num-btn { background-color: #fdfefe; border: 3px solid #95a5a6; padding: 12px 0; font-size: 1.6rem; font-weight: bold; border-radius: 10px; color: #2c3e50; cursor: pointer; box-shadow: 0 5px 0px #95a5a6; }
         .num-btn:active { transform: translateY(5px); box-shadow: 0 0px 0px #95a5a6; }
-        .num-btn.delete-btn { background-color: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 5px 0px #c0392b; font-size: 1.4rem; text-shadow: 1px 1px 0px #222; }
+        .num-btn.delete-btn { background-color: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 5px 0px #c0392b; }
         .num-btn.delete-btn:active { box-shadow: 0 0px 0px #c0392b; }
 
         .controls { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 95%; margin-bottom: 30px; }
@@ -124,80 +84,69 @@
         #loading { display: none; color: #e67e22; font-weight: bold; font-size: 1.1rem; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         
-        #hint-btn { background-color: #f1c40f; color: #d35400; border: 4px solid #f39c12; padding: 15px; font-size: 1.2rem; font-weight: bold; border-radius: 30px; cursor: pointer; box-shadow: 0 5px 0px #f39c12; width: 100%; transition: all 0.1s; letter-spacing: 1px; font-family: 'M PLUS Rounded 1c', sans-serif; }
+        #hint-btn { background-color: #f1c40f; color: #d35400; border: 4px solid #f39c12; padding: 15px; font-size: 1.2rem; font-weight: bold; border-radius: 30px; cursor: pointer; box-shadow: 0 5px 0px #f39c12; width: 100%; }
         #hint-btn:active { transform: translateY(5px); box-shadow: 0 0px 0px #f39c12; }
         #hint-btn:disabled { background-color: #ecf0f1; border-color: #bdc3c7; color: #95a5a6; box-shadow: 0 5px 0px #bdc3c7; cursor: not-allowed; }
         #hint-btn.upsell-mode { background-color: #ff9800; color: white; border-color: #e65100; box-shadow: 0 5px 0px #e65100; text-shadow: 1px 1px 0px #222; }
         
-        .back-btn { background-color: #95a5a6; color: white; border: 4px solid #7f8c8d; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 12px; cursor: pointer; width: 80%; box-shadow: 0 4px 0px #7f8c8d; transition: all 0.1s; font-family: 'M PLUS Rounded 1c', sans-serif; text-decoration: none; display: block; text-align: center; box-sizing: border-box; }
+        .back-btn { background-color: #95a5a6; color: white; border: 4px solid #7f8c8d; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 12px; cursor: pointer; width: 80%; box-shadow: 0 4px 0px #7f8c8d; }
         .back-btn:active { transform: translateY(4px); box-shadow: 0 0px 0px #7f8c8d; }
-
-        /* リセットボタン（テスト用） */
         .reset-btn { font-size: 0.8rem; color: #999; text-decoration: underline; cursor: pointer; margin-top: 15px; background: none; border: none; }
+
+        #clear-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background-color: #fff; padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 320px; border: 6px solid #f1c40f; box-shadow: 0 10px 0px #f39c12; }
+        .modal-title { font-size: 2.2rem; color: #e74c3c; margin-top: 0; margin-bottom: 15px; font-weight: bold; text-shadow: 2px 2px 0px #f1c40f; }
+        .modal-time { font-size: 1.4rem; color: #2c3e50; margin-bottom: 25px; font-weight: bold; }
+        .modal-btn { background-color: #2ecc71; color: white; border: 4px solid #27ae60; padding: 15px 24px; font-size: 1.2rem; font-weight: bold; border-radius: 30px; cursor: pointer; width: 100%; box-shadow: 0 5px 0px #27ae60; }
+        .modal-btn:active { transform: translateY(5px); box-shadow: 0 0px 0px #27ae60; }
 
         @media screen and (max-width: 500px), screen and (max-height: 850px) {
             body { padding-top: 5px; }
+            .ticket-info-area { padding: 8px 10px; margin-bottom: 10px; width: 95%; }
+            .ticket-count { font-size: 1rem; }
+            .ticket-buy-btn { font-size: 0.9rem; padding: 6px 10px; }
             .top-info-wrapper { flex-direction: row; align-items: stretch; margin-bottom: 10px; width: 95%; gap: 10px; }
             .header-area { flex: 1; flex-direction: column; justify-content: center; padding: 6px; border-width: 3px; box-shadow: 0 3px 0px rgba(0,0,0,0.05); }
             #stage-title { font-size: 1rem; margin-bottom: 4px; text-align: center; }
             #timer { font-size: 1.2rem; text-align: center; }
             .ai-character-area { width: 85px; height: 85px; flex-shrink: 0; border-width: 3px; box-shadow: 0 4px 0px #7f8c8d; border-radius: 12px; }
             .ai-character-area::before { top: 3px; left: 3px; right: 3px; bottom: 3px; }
-            .ai-character-area.thinking { box-shadow: 0 4px 0px #f39c12; }
-            .ai-character-area.happy { box-shadow: 0 4px 0px #27ae60; }
             .sudoku-container { padding: 6px; margin-bottom: 12px; border-width: 3px; box-shadow: 0 4px 0px #bdc3c7; }
             table { border-width: 3px; }
-            td { width: 34px; height: 34px; max-width: 34px; max-height: 34px; font-size: 1.5rem; }
+            td { width: 34px; height: 34px; font-size: 1.5rem; }
             td.selected { font-size: 1.6rem; border-width: 2px; }
             .numpad { gap: 6px; margin-bottom: 12px; width: 98%; }
             .num-btn { padding: 6px 0; font-size: 1.4rem; border-width: 2px; box-shadow: 0 4px 0px #95a5a6; border-radius: 8px; }
-            .num-btn:active { transform: translateY(4px); box-shadow: 0 0px 0px #95a5a6; }
             .num-btn.delete-btn { font-size: 1.2rem; box-shadow: 0 4px 0px #c0392b; }
             .controls { gap: 10px; margin-bottom: 10px; width: 98%; }
             #hint-btn { padding: 12px; font-size: 1.1rem; border-width: 3px; box-shadow: 0 4px 0px #f39c12; border-radius: 20px; }
-            #hint-btn:active { transform: translateY(4px); box-shadow: 0 0px 0px #f39c12; }
             .back-btn { padding: 10px; font-size: 0.9rem; width: 85%; margin-bottom: 0; border-width: 3px; box-shadow: 0 3px 0px #7f8c8d; }
-            .back-btn:active { transform: translateY(3px); box-shadow: 0 0px 0px #7f8c8d; }
             .tabs { margin-bottom: 10px; }
             .tab-btn { font-size: 0.9rem; padding: 8px 2px; }
             .stage-grid-container { padding: 10px; max-height: 350px; }
             .stage-btn { font-size: 1.4rem; }
-            .stage-btn.locked::after { font-size: 1.2rem; }
-            .stage-btn.cleared span.stage-num { font-size: 1.4rem; }
-            .best-time-label { font-size: 0.9rem; }
-            .stage-btn.cleared::before { font-size: 3.5rem; }
         }
     </style>
 </head>
 <body>
 
+    <!-- メニュー画面 -->
     <div id="menu-screen">
         <h1>AIコーチ付きナンプレ</h1>
         
+        <div class="ticket-info-area">
+            <div class="ticket-count">🎟️ ヒントチケット: <span id="ticket-display">0</span>回分</div>
+            <button class="ticket-buy-btn" onclick="purchaseHintTicket()">補充する(100円)</button>
+        </div>
+        
         <div class="section-title">相棒（コーチ）を選んでください</div>
         <div class="coach-selection">
-            <div>
-                <button class="coach-btn" id="coach-male" onclick="selectCoach('male')">
-                    <img src="images/coach_male_normal.png" alt="マコト">
-                </button>
-                <div class="coach-label">マコト</div>
-            </div>
-            <div>
-                <button class="coach-btn active" id="coach-robot" onclick="selectCoach('robot')">
-                    <img src="images/coach_robot_normal.png" alt="ロボ助">
-                </button>
-                <div class="coach-label">ロボ助</div>
-            </div>
-            <div>
-                <button class="coach-btn" id="coach-female" onclick="selectCoach('female')">
-                    <img src="images/coach_female_normal.png" alt="サクラ">
-                </button>
-                <div class="coach-label">サクラ</div>
-            </div>
+            <div><button class="coach-btn" id="coach-male" onclick="selectCoach('male')"><img src="images/coach_male_normal.png" alt="マコト"></button><div class="coach-label">マコト</div></div>
+            <div><button class="coach-btn active" id="coach-robot" onclick="selectCoach('robot')"><img src="images/coach_robot_normal.png" alt="ロボ助"></button><div class="coach-label">ロボ助</div></div>
+            <div><button class="coach-btn" id="coach-female" onclick="selectCoach('female')"><img src="images/coach_female_normal.png" alt="サクラ"></button><div class="coach-label">サクラ</div></div>
         </div>
 
         <div class="section-title">遊ぶステージを選んでください</div>
-        
         <div class="tabs">
             <button class="tab-btn active" onclick="changeTab('beginner')">初級</button>
             <button class="tab-btn" onclick="changeTab('intermediate')">中級</button>
@@ -206,54 +155,42 @@
         </div>
 
         <div id="stage-grid-area" class="stage-grid-container">
-            <div class="stage-grid" id="stage-grid">
-                <!-- JavaScriptでボタンが自動生成されます -->
-            </div>
-            <div style="text-align: center; margin-top: 15px; font-size: 0.8rem; color: rgba(255,255,255,0.8);">
-                ※データはこのブラウザに保存されます。履歴を消去するとデータも消えるのでご注意ください。<br>
-            </div>
+            <div class="stage-grid" id="stage-grid"></div>
+            <div style="text-align: center; margin-top: 15px; font-size: 0.8rem; color: rgba(255,255,255,0.8);">※データはこのブラウザに保存されます。履歴を消去するとデータも消えます。</div>
         </div>
         
-        <!-- テスト用リセットボタン -->
         <button class="reset-btn" onclick="resetSaveData()">🔄 セーブデータをリセット（テスト用）</button>
     </div>
 
+    <!-- ゲーム画面 -->
     <div id="game-screen" style="display: none;">
         <div class="top-info-wrapper">
             <div class="header-area">
                 <div id="stage-title"></div>
                 <div id="timer">00:00</div>
             </div>
-            <div id="ai-character" class="ai-character-area">
-                <img id="coach-image" src="images/coach_robot_normal.png" alt="コーチ">
-            </div>
+            <div id="ai-character" class="ai-character-area"><img id="coach-image" src="images/coach_robot_normal.png" alt="コーチ"></div>
         </div>
 
-        <div class="sudoku-container">
-            <table id="sudoku-board"></table>
-        </div>
+        <div class="sudoku-container"><table id="sudoku-board"></table></div>
 
         <div class="numpad">
-            <button class="num-btn" onclick="inputNumber(1)">1</button>
-            <button class="num-btn" onclick="inputNumber(2)">2</button>
-            <button class="num-btn" onclick="inputNumber(3)">3</button>
-            <button class="num-btn" onclick="inputNumber(4)">4</button>
-            <button class="num-btn" onclick="inputNumber(5)">5</button>
-            <button class="num-btn" onclick="inputNumber(6)">6</button>
-            <button class="num-btn" onclick="inputNumber(7)">7</button>
-            <button class="num-btn" onclick="inputNumber(8)">8</button>
-            <button class="num-btn" onclick="inputNumber(9)">9</button>
-            <button class="num-btn delete-btn" onclick="inputNumber(0)">消</button>
+            <button class="num-btn" onclick="inputNumber(1)">1</button><button class="num-btn" onclick="inputNumber(2)">2</button>
+            <button class="num-btn" onclick="inputNumber(3)">3</button><button class="num-btn" onclick="inputNumber(4)">4</button>
+            <button class="num-btn" onclick="inputNumber(5)">5</button><button class="num-btn" onclick="inputNumber(6)">6</button>
+            <button class="num-btn" onclick="inputNumber(7)">7</button><button class="num-btn" onclick="inputNumber(8)">8</button>
+            <button class="num-btn" onclick="inputNumber(9)">9</button><button class="num-btn delete-btn" onclick="inputNumber(0)">消</button>
         </div>
 
         <div class="controls">
             <div id="loading">AIコーチが思考中...（約6秒）</div>
             <div id="hint-area"></div>
-            <button id="hint-btn">AIにヒントを聞く (残り3回)</button>
+            <button id="hint-btn">AIにヒントを聞く</button>
             <button class="back-btn" onclick="backToMenu()">メニューに戻る</button>
         </div>
     </div>
 
+    <!-- クリアモーダル -->
     <div id="clear-modal" style="display: none;">
         <div class="modal-content">
             <div class="modal-title">🎉 クリア！ 🎉</div>
@@ -262,20 +199,21 @@
         </div>
     </div>
 
-    <script src="stages_beginner.js"></script>
-    <script src="stages_intermediate.js"></script>
-    <script src="stages_advanced.js"></script>
-    <script src="stages_master.js"></script>
+    <script src="stages_beginner.js"></script><script src="stages_intermediate.js"></script>
+    <script src="stages_advanced.js"></script><script src="stages_master.js"></script>
 
     <script>
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); }); }
+
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzyvzJeCKPbw8Y2Phz5hAcKWovpk3JiPVu-_Ij4noKMCv7z7md-31o2tROvd0MVmTYjGg/exec";
         
+        // ★ 提供いただいた5つのリンクをセットしました
         const STRIPE_LINKS = {
             hint: "https://buy.stripe.com/test_00wfZj6KO1KXaWWdkRfMA00",
-            beginner: "https://buy.stripe.com/test_00wfZj6KO1KXaWWdkRfMA00", 
-            intermediate: "https://buy.stripe.com/test_00wfZj6KO1KXaWWdkRfMA00", 
-            advanced: "https://buy.stripe.com/test_00wfZj6KO1KXaWWdkRfMA00",
-            master: "https://buy.stripe.com/test_00wfZj6KO1KXaWWdkRfMA00"
+            beginner: "https://buy.stripe.com/test_4gM5kF0mq3T5ghgeoVfMA01",
+            intermediate: "https://buy.stripe.com/test_6oUcN72uycpBaWWeoVfMA02",
+            advanced: "https://buy.stripe.com/test_bJecN77OS61dd5494BfMA03",
+            master: "https://buy.stripe.com/test_8x2fZjfhk3T55CC94BfMA04"
         };
 
         const coachImages = {
@@ -284,41 +222,47 @@
             robot: { normal: 'images/coach_robot_normal.png', thinking: 'images/coach_robot_thinking.png', happy_a: 'images/coach_robot_happy_a.png', happy_b: 'images/coach_robot_happy_b.png' }
         };
         
-        let currentCoach = 'robot'; 
-        let happyAnimationInterval = null;
-        let currentDifficulty = 'beginner'; 
-
-        let playSessionId = 0;
-        let isThinking = false;
+        let currentCoach = 'robot', happyAnimationInterval = null, currentDifficulty = 'beginner'; 
+        let playSessionId = 0, isThinking = false, freeHintsRemaining = 3; 
+        let startTime, timerInterval, isCleared = false, selectedCell = null;
+        let currentOriginalBoard = [], currentBoardData = [];
+        let elapsedSecondsOffset = 0; 
 
         let savedData = JSON.parse(localStorage.getItem('sudokuAppSave')) || {
             unlockedPacks: { beginner: 0, intermediate: 0, advanced: 0, master: 0 },
-            cleared: {},   
-            bestTimes: {}  
+            cleared: {}, bestTimes: {}, hintTickets: 0
         };
 
-        // 古いバージョンのセーブデータ互換処理
-        if (savedData.unlocked) {
-            savedData.unlockedPacks = {
-                beginner: savedData.unlocked.beginner ? 1 : 0,
-                intermediate: savedData.unlocked.intermediate ? 1 : 0,
-                advanced: savedData.unlocked.advanced ? 1 : 0,
-                master: 0
-            };
-            delete savedData.unlocked;
-        }
+        function saveGameData() { localStorage.setItem('sudokuAppSave', JSON.stringify(savedData)); }
+        function updateTicketDisplay() { document.getElementById('ticket-display').innerText = savedData.hintTickets || 0; }
 
-        function saveGameData() {
-            localStorage.setItem('sudokuAppSave', JSON.stringify(savedData));
-        }
-
-        // テスト用：セーブデータリセット関数
-        function resetSaveData() {
-            if(confirm("【開発用】\nセーブデータ（クリア状況・課金パック・タイム）をすべてリセットしますか？\n（※外部ファイルのデータは消えません）")) {
-                localStorage.removeItem('sudokuAppSave');
-                location.reload(); // 画面を再読み込みして反映
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('payment_success') === 'true') {
+                const pack = urlParams.get('pack');
+                if (pack === 'hint') {
+                    savedData.hintTickets = (savedData.hintTickets || 0) + 100;
+                    alert("決済完了！AIヒントチケット100回分を追加しました🎉");
+                } else if (pack === 'beginner') { savedData.unlockedPacks.beginner++; alert("初級パックを解放しました！"); }
+                else if (pack === 'intermediate') { savedData.unlockedPacks.intermediate++; alert("中級パックを解放しました！"); }
+                else if (pack === 'advanced') { savedData.unlockedPacks.advanced++; alert("上級パックを解放しました！"); }
+                else if (pack === 'master') { savedData.unlockedPacks.master++; alert("達人級パックを解放しました！"); }
+                saveGameData();
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
-        }
+
+            updateTicketDisplay();
+
+            if (savedData.activeGame) {
+                const active = savedData.activeGame;
+                currentDifficulty = active.difficulty;
+                restoreStage(active.title, active.originalBoard, active.currentBoard, active.elapsedSeconds, active.freeHints);
+                delete savedData.activeGame;
+                saveGameData();
+            } else {
+                initMenu();
+            }
+        };
 
         const stagesDataMap = {
             'beginner': typeof stagesBeginnerData !== 'undefined' ? stagesBeginnerData : [],
@@ -326,491 +270,223 @@
             'advanced': typeof stagesAdvancedData !== 'undefined' ? stagesAdvancedData : [],
             'master': typeof stagesMasterData !== 'undefined' ? stagesMasterData : []
         };
+        const testBoard = [[5,3,4,6,7,8,9,1,2], [6,7,2,1,9,5,3,4,8], [1,9,8,3,4,2,5,6,7], [8,5,9,7,6,1,4,2,3], [4,2,6,8,5,3,7,9,1], [7,1,3,9,2,4,8,5,6], [9,6,1,5,3,7,2,8,4], [2,8,7,4,1,9,6,3,5], [3,4,5,2,8,6,1,7,0]];
+        const menuScreen = document.getElementById('menu-screen'), gameScreen = document.getElementById('game-screen');
+        const table = document.getElementById('sudoku-board'), hintBtn = document.getElementById('hint-btn'), hintArea = document.getElementById('hint-area');
+        const loadingDisplay = document.getElementById('loading'), timerDisplay = document.getElementById('timer'), stageTitle = document.getElementById('stage-title');
+        const aiCharacterArea = document.getElementById('ai-character'), coachImage = document.getElementById('coach-image'), clearModal = document.getElementById('clear-modal');
 
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx;
-        function initAudio() { if (!audioCtx) { audioCtx = new AudioContext(); } if (audioCtx.state === 'suspended') { audioCtx.resume(); } }
-        function playTone(freq, type, duration, vol = 0.1) {
-            initAudio(); const oscillator = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
-            oscillator.type = type; oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gainNode.gain.setValueAtTime(vol, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-            oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
-            oscillator.start(); oscillator.stop(audioCtx.currentTime + duration);
-        }
+        function initAudio() { if (!audioCtx) audioCtx = new AudioContext(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+        function playTone(freq, type, duration, vol=0.1) { initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime); gain.gain.setValueAtTime(vol, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + duration); }
         function playClickSound() { playTone(600, 'sine', 0.1, 0.1); }
         function playErrorSound() { playTone(150, 'sawtooth', 0.3, 0.15); }
         function playStartSound() { playTone(400, 'square', 0.1, 0.05); setTimeout(() => playTone(600, 'square', 0.15, 0.05), 100); }
         function playClearSound() { playTone(400, 'square', 0.1, 0.1); setTimeout(() => playTone(400, 'square', 0.1, 0.1), 150); setTimeout(() => playTone(400, 'square', 0.1, 0.1), 300); setTimeout(() => playTone(600, 'square', 0.4, 0.1), 450); }
 
-        const testBoard = [[5, 3, 4, 6, 7, 8, 9, 1, 2], [6, 7, 2, 1, 9, 5, 3, 4, 8], [1, 9, 8, 3, 4, 2, 5, 6, 7], [8, 5, 9, 7, 6, 1, 4, 2, 3], [4, 2, 6, 8, 5, 3, 7, 9, 1], [7, 1, 3, 9, 2, 4, 8, 5, 6], [9, 6, 1, 5, 3, 7, 2, 8, 4], [2, 8, 7, 4, 1, 9, 6, 3, 5], [3, 4, 5, 2, 8, 6, 1, 7, 0]];
-
-        const menuScreen = document.getElementById('menu-screen');
-        const gameScreen = document.getElementById('game-screen');
-        const table = document.getElementById('sudoku-board');
-        const hintBtn = document.getElementById('hint-btn');
-        const hintArea = document.getElementById('hint-area');
-        const loadingDisplay = document.getElementById('loading');
-        const timerDisplay = document.getElementById('timer');
-        const stageTitle = document.getElementById('stage-title');
-        const aiCharacterArea = document.getElementById('ai-character');
-        const coachImage = document.getElementById('coach-image');
-        const clearModal = document.getElementById('clear-modal');
-
-        let currentOriginalBoard = [];
-        let currentBoardData = [];
-        let selectedCell = null; 
-        
-        let hintsRemaining = 3; 
-        let startTime; 
-        let timerInterval; 
-        let isCleared = false; 
-        let isUnlimitedHints = false; 
-
-        function formatTime(totalSeconds) {
-            const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
-            const seconds = (totalSeconds % 60).toString().padStart(2, '0');
-            return `${minutes}:${seconds}`;
-        }
+        function formatTime(totalSeconds) { const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0'), s = (totalSeconds % 60).toString().padStart(2, '0'); return `${m}:${s}`; }
 
         function changeTab(difficulty) {
-            playClickSound();
-            currentDifficulty = difficulty;
-            
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
+            playClickSound(); currentDifficulty = difficulty;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active')); event.target.classList.add('active');
             const gridContainer = document.getElementById('stage-grid-area');
-            if(difficulty === 'master') {
-                gridContainer.classList.add('premium');
-            } else {
-                gridContainer.classList.remove('premium');
-            }
-
+            difficulty === 'master' ? gridContainer.classList.add('premium') : gridContainer.classList.remove('premium');
             renderStageGrid();
         }
 
-        function getFreeStageCount(diff) {
-            return diff === 'master' ? 0 : 10;
-        }
-
         function renderStageGrid() {
-            const grid = document.getElementById('stage-grid');
-            grid.innerHTML = ""; 
-
-            // ★ここで「外部ファイル内の配列の長さ」を正確に取得します
+            const grid = document.getElementById('stage-grid'); grid.innerHTML = ""; 
             const currentStageList = stagesDataMap[currentDifficulty];
             const maxStage = currentStageList.length;
 
-            if (maxStage === 0) {
-                const emptyMsg = document.createElement('div');
-                emptyMsg.style.gridColumn = '1 / -1';
-                emptyMsg.style.textAlign = 'center';
-                emptyMsg.style.color = '#fff';
-                emptyMsg.innerHTML = 'データがありません。<br>外部ファイルに問題を追加してください！';
-                grid.appendChild(emptyMsg);
-                return;
-            }
+            if (maxStage === 0) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#fff;">データがありません。<br>外部ファイルに問題を追加してください！</div>'; return; }
 
-            const diffName = getDifficultyName(currentDifficulty);
+            const diffName = { 'beginner': '初級', 'intermediate': '中級', 'advanced': '上級', 'master': '達人級' }[currentDifficulty];
             const unlockedPacks = savedData.unlockedPacks[currentDifficulty] || 0;
-            const freeCount = getFreeStageCount(currentDifficulty);
+            const freeCount = currentDifficulty === 'master' ? 0 : 10;
             const maxPlayable = freeCount + (unlockedPacks * 100);
 
             for (let i = 1; i <= maxStage; i++) {
                 const stageFullName = `${diffName} ${i}`;
                 const isLocked = i > maxPlayable; 
                 const isCleared = savedData.cleared[stageFullName];
-                const bestTimeSec = savedData.bestTimes[stageFullName];
-
                 const btn = document.createElement('button');
                 btn.className = 'stage-btn';
-                
-                if (isLocked) {
-                    btn.classList.add('locked');
-                    btn.innerHTML = `<span>${i}</span>`;
-                } else if (isCleared) {
-                    btn.classList.add('cleared');
-                    btn.innerHTML = `<span class="stage-num">${i}</span><span class="best-time-label">${formatTime(bestTimeSec)}</span>`;
-                } else {
-                    btn.innerHTML = `<span>${i}</span>`;
-                }
+                if (isLocked) { btn.classList.add('locked'); btn.innerHTML = `<span>${i}</span>`; }
+                else if (isCleared) { btn.classList.add('cleared'); btn.innerHTML = `<span class="stage-num">${i}</span><span class="best-time-label">${formatTime(savedData.bestTimes[stageFullName])}</span>`; }
+                else { btn.innerHTML = `<span>${i}</span>`; }
                 
                 btn.onclick = () => {
                     playClickSound();
-                    if (isLocked) {
-                        promptPurchasePack();
-                    } else {
-                        // データ配列が足りていればそちらを、なければダミー盤面をロード
-                        if (currentStageList && currentStageList.length >= i) {
-                            startStage(stageFullName, currentStageList[i - 1].board);
-                        } else {
-                            startStage(stageFullName, testBoard);
-                        }
-                    }
+                    if (isLocked) { promptPurchasePack(diffName, freeCount, unlockedPacks); }
+                    else { startStage(stageFullName, currentStageList.length >= i ? currentStageList[i - 1].board : testBoard); }
                 };
                 grid.appendChild(btn);
             }
-
-            const comingSoon = document.createElement('div');
-            comingSoon.style.gridColumn = '1 / -1'; 
-            comingSoon.style.textAlign = 'center';
-            comingSoon.style.padding = '20px 0 10px 0';
-            comingSoon.style.color = 'rgba(255,255,255,0.9)';
-            comingSoon.style.fontWeight = 'bold';
-            comingSoon.style.lineHeight = '1.5';
-            comingSoon.innerHTML = `🔒 ${maxStage + 1}〜 Coming Soon...<br><span style="font-size:0.85rem; font-weight:normal;">さらなる問題を現在作成中です！</span>`;
-            grid.appendChild(comingSoon);
+            grid.innerHTML += `<div style="grid-column:1/-1;text-align:center;padding:20px 0;color:rgba(255,255,255,0.9);font-weight:bold;">🔒 ${maxStage + 1}〜 Coming Soon...<br><span style="font-size:0.85rem;font-weight:normal;">さらなる問題を現在作成中です！</span></div>`;
         }
 
-        function getDifficultyName(diff) {
-            const names = { 'beginner': '初級', 'intermediate': '中級', 'advanced': '上級', 'master': '達人級' };
-            return names[diff] || '';
-        }
-
-        function promptPurchasePack() {
-            const diffName = getDifficultyName(currentDifficulty);
-            const currentPacks = savedData.unlockedPacks[currentDifficulty] || 0;
-            const freeCount = getFreeStageCount(currentDifficulty);
-            
+        // 改行エラーを防ぐため安全な文字列連結に変更
+        function promptPurchasePack(diffName, freeCount, currentPacks) {
             const nextStart = freeCount + 1 + (currentPacks * 100);
             const nextEnd = nextStart + 99;
-
-            const wantsToBuy = confirm(`ここから先は有料ステージです。\n\n「${diffName} 追加100ステージパック（100円）」を購入して、ステージ${nextStart}〜${nextEnd}を解放しますか？`);
-            
-            if (wantsToBuy) {
-                // 本番仕様：別タブでStripe決済画面を開く
-                window.open(STRIPE_LINKS[currentDifficulty], '_blank');
-                setTimeout(() => {
-                    const isPaid = confirm("【決済確認】\n別タブでの決済は完了しましたか？\n（※プロトタイプ版のため「OK」を押すとパックが解放されます）");
-                    if (isPaid) {
-                        alert(`ありがとうございます！${diffName}のステージ${nextStart}〜${nextEnd}が遊べるようになりました！`);
-                        savedData.unlockedPacks[currentDifficulty] = currentPacks + 1;
-                        saveGameData(); 
-                        renderStageGrid(); 
-                    }
-                }, 1000); 
+            const msg = "ここから先は有料ステージです。\n\n「" + diffName + " 追加100ステージパック（100円）」を購入しますか？";
+            if (confirm(msg)) {
+                if (STRIPE_LINKS[currentDifficulty]) {
+                    window.location.href = STRIPE_LINKS[currentDifficulty];
+                }
             }
         }
 
-        function initMenu() {
-            renderStageGrid();
-        }
-
-        function selectCoach(coachType) {
-            playClickSound();
-            currentCoach = coachType;
-            document.querySelectorAll('.coach-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`coach-${coachType}`).classList.add('active');
-            coachImage.src = coachImages[currentCoach].normal;
-        }
-
-        function startHappyAnimation() {
-            stopHappyAnimation();
-            let stateA = true;
-            coachImage.src = coachImages[currentCoach].happy_a; 
-            happyAnimationInterval = setInterval(() => {
-                stateA = !stateA;
-                coachImage.src = stateA ? coachImages[currentCoach].happy_a : coachImages[currentCoach].happy_b;
-            }, 500); 
-        }
-
-        function stopHappyAnimation() {
-            if (happyAnimationInterval) {
-                clearInterval(happyAnimationInterval);
-                happyAnimationInterval = null;
+        function purchaseHintTicket() {
+            if (confirm("「AIヒントチケット（100回分/100円）」を購入しますか？")) {
+                window.location.href = STRIPE_LINKS.hint;
             }
         }
 
-        function setCoachState(state) {
-            stopHappyAnimation(); 
-            if (state === 'happy') {
-                startHappyAnimation(); 
-            } else {
-                coachImage.src = coachImages[currentCoach][state]; 
+        function purchaseHintDuringGame() {
+            if (confirm("ヒント枠がありません。\n「AIヒントチケット（100回分/100円）」を購入しますか？\n\n※決済後、現在の盤面から自動的に再開されます。")) {
+                const totalSeconds = elapsedSecondsOffset + Math.floor((Date.now() - startTime) / 1000);
+                savedData.activeGame = {
+                    title: stageTitle.innerText, originalBoard: currentOriginalBoard, currentBoard: currentBoardData,
+                    difficulty: currentDifficulty, elapsedSeconds: totalSeconds, freeHints: freeHintsRemaining
+                };
+                saveGameData();
+                window.location.href = STRIPE_LINKS.hint;
             }
-            aiCharacterArea.className = 'ai-character-area ' + state;
         }
+
+        function initMenu() { updateTicketDisplay(); renderStageGrid(); }
+
+        function selectCoach(type) { playClickSound(); currentCoach = type; document.querySelectorAll('.coach-btn').forEach(b => b.classList.remove('active')); document.getElementById(`coach-${type}`).classList.add('active'); coachImage.src = coachImages[currentCoach].normal; }
+        function setCoachState(state) { stopHappyAnimation(); if(state==='happy'){ let a=true; coachImage.src=coachImages[currentCoach].happy_a; happyAnimationInterval=setInterval(()=>{a=!a;coachImage.src=a?coachImages[currentCoach].happy_a:coachImages[currentCoach].happy_b;},500); } else { coachImage.src=coachImages[currentCoach][state]; } aiCharacterArea.className = 'ai-character-area ' + state; }
+        function stopHappyAnimation() { if(happyAnimationInterval){ clearInterval(happyAnimationInterval); happyAnimationInterval=null; } }
 
         function startStage(title, boardData) {
-            playStartSound(); 
-            
-            playSessionId++; 
-            isThinking = false; 
-
-            currentOriginalBoard = JSON.parse(JSON.stringify(boardData));
-            currentBoardData = JSON.parse(JSON.stringify(boardData));
+            playStartSound(); playSessionId++; isThinking = false; isCleared = false; selectedCell = null;
+            currentOriginalBoard = JSON.parse(JSON.stringify(boardData)); currentBoardData = JSON.parse(JSON.stringify(boardData));
             stageTitle.innerText = title;
-
-            hintsRemaining = 3;
-            isCleared = false;
-            isUnlimitedHints = false; 
-            selectedCell = null;
-            
-            hintBtn.disabled = false;
-            hintBtn.classList.remove('upsell-mode');
-            hintBtn.innerText = `AIにヒントを聞く (残り${hintsRemaining}回)`;
-            hintArea.style.display = 'none';
-            loadingDisplay.style.display = 'none';
-            clearModal.style.display = 'none';
-
-            setCoachState('normal');
-            createBoardUI();
-            startTimer();
-
-            menuScreen.style.display = 'none';
-            gameScreen.style.display = 'flex';
+            freeHintsRemaining = 3; elapsedSecondsOffset = 0;
+            setupGameUI();
         }
 
-        function backToMenu() {
-            playClickSound(); 
-            stopTimer();
-            stopHappyAnimation(); 
-            playSessionId++; 
-            isThinking = false;
-            gameScreen.style.display = 'none';
-            menuScreen.style.display = 'flex';
-            renderStageGrid(); 
+        function restoreStage(title, original, current, elapsed, freeH) {
+            playSessionId++; isThinking = false; isCleared = false; selectedCell = null;
+            currentOriginalBoard = original; currentBoardData = current;
+            stageTitle.innerText = title;
+            freeHintsRemaining = freeH; elapsedSecondsOffset = elapsed;
+            setupGameUI();
         }
+
+        function setupGameUI() {
+            updateHintButtonText(); hintBtn.disabled = false; hintArea.style.display = 'none'; loadingDisplay.style.display = 'none'; clearModal.style.display = 'none';
+            setCoachState('normal'); createBoardUI(); checkBoardErrors(); startTimer();
+            menuScreen.style.display = 'none'; gameScreen.style.display = 'flex';
+        }
+
+        function backToMenu() { playClickSound(); stopTimer(); stopHappyAnimation(); playSessionId++; isThinking = false; gameScreen.style.display = 'none'; menuScreen.style.display = 'flex'; updateTicketDisplay(); renderStageGrid(); }
 
         function startTimer() {
-            stopTimer(); 
-            timerDisplay.innerText = "00:00";
-            startTime = Date.now();
-            timerInterval = setInterval(() => {
-                const totalSeconds = Math.floor((Date.now() - startTime) / 1000);
-                timerDisplay.innerText = formatTime(totalSeconds);
-            }, 1000);
+            stopTimer(); startTime = Date.now();
+            timerInterval = setInterval(() => { timerDisplay.innerText = formatTime(elapsedSecondsOffset + Math.floor((Date.now() - startTime) / 1000)); }, 1000);
         }
-
-        function stopTimer() {
-            if (timerInterval) clearInterval(timerInterval);
-        }
+        function stopTimer() { if (timerInterval) clearInterval(timerInterval); }
 
         function createBoardUI() {
             table.innerHTML = ""; 
-            for (let r = 0; r < 9; r++) {
+            for (let r=0; r<9; r++) {
                 const tr = document.createElement('tr');
-                for (let c = 0; c < 9; c++) {
-                    const td = document.createElement('td');
-                    td.id = `cell-${r}-${c}`;
-                    if (currentBoardData[r][c] !== 0) {
-                        td.innerText = currentBoardData[r][c];
-                        td.classList.add('fixed');
-                    } else {
-                        td.innerText = "";
-                        td.addEventListener('click', () => selectCell(r, c));
-                    }
+                for (let c=0; c<9; c++) {
+                    const td = document.createElement('td'); td.id = `cell-${r}-${c}`;
+                    if (currentOriginalBoard[r][c] !== 0) { td.innerText = currentOriginalBoard[r][c]; td.classList.add('fixed'); } 
+                    else { if(currentBoardData[r][c] !== 0) td.innerText = currentBoardData[r][c]; td.addEventListener('click', () => selectCell(r, c)); }
                     tr.appendChild(td);
                 }
                 table.appendChild(tr);
             }
         }
 
-        function selectCell(r, c) {
-            if (isCleared || currentOriginalBoard[r][c] !== 0 || isThinking) return; 
-            playClickSound(); 
-            document.querySelectorAll('.selected').forEach(cell => cell.classList.remove('selected'));
-            clearHighlights();
-            selectedCell = { r, c };
-            document.getElementById(`cell-${r}-${c}`).classList.add('selected');
-        }
+        function selectCell(r, c) { if (isCleared || currentOriginalBoard[r][c] !== 0 || isThinking) return; playClickSound(); document.querySelectorAll('.selected').forEach(c => c.classList.remove('selected')); document.querySelectorAll('.highlight').forEach(c => c.classList.remove('highlight')); selectedCell = { r, c }; document.getElementById(`cell-${r}-${c}`).classList.add('selected'); }
 
         function inputNumber(num) {
             if (isCleared || !selectedCell || isThinking) return;
-            const r = selectedCell.r;
-            const c = selectedCell.c;
-            currentBoardData[r][c] = num;
+            const r = selectedCell.r, c = selectedCell.c; currentBoardData[r][c] = num;
             document.getElementById(`cell-${r}-${c}`).innerText = num === 0 ? '' : num;
-            
-            const hasError = checkBoardErrors();
-            if (hasError) {
-                playErrorSound(); 
-            } else {
-                playClickSound(); 
-            }
-            
-            checkClear();
+            checkBoardErrors() ? playErrorSound() : playClickSound(); checkClear();
         }
 
         function checkBoardErrors() {
-            document.querySelectorAll('.cell, td').forEach(cell => cell.classList.remove('error'));
-            let anyError = false;
-            for (let r = 0; r < 9; r++) {
-                for (let c = 0; c < 9; c++) {
-                    const val = currentBoardData[r][c];
-                    if (val === 0) continue;
-                    let isError = false;
-                    for (let i = 0; i < 9; i++) {
-                        if (i !== c && currentBoardData[r][i] === val) isError = true;
-                        if (i !== r && currentBoardData[i][c] === val) isError = true;
-                    }
-                    const br = Math.floor(r / 3) * 3;
-                    const bc = Math.floor(c / 3) * 3;
-                    for (let i = 0; i < 3; i++) {
-                        for (let j = 0; j < 3; j++) {
-                            if ((br + i !== r || bc + j !== c) && currentBoardData[br + i][bc + j] === val) {
-                                isError = true;
-                            }
-                        }
-                    }
-                    if (isError) {
-                        document.getElementById(`cell-${r}-${c}`).classList.add('error');
-                        anyError = true;
-                    }
+            document.querySelectorAll('.cell, td').forEach(c => c.classList.remove('error')); let hasErr = false;
+            for (let r=0; r<9; r++) {
+                for (let c=0; c<9; c++) {
+                    const v = currentBoardData[r][c]; if (v === 0) continue; let err = false;
+                    for (let i=0; i<9; i++) { if ((i!==c && currentBoardData[r][i]===v) || (i!==r && currentBoardData[i][c]===v)) err = true; }
+                    const br = Math.floor(r/3)*3, bc = Math.floor(c/3)*3;
+                    for (let i=0; i<3; i++) { for (let j=0; j<3; j++) { if ((br+i!==r || bc+j!==c) && currentBoardData[br+i][bc+j]===v) err = true; } }
+                    if (err) { document.getElementById(`cell-${r}-${c}`).classList.add('error'); hasErr = true; }
                 }
             }
-            return anyError;
+            return hasErr;
         }
 
         function checkClear() {
-            let isFull = true;
-            let hasError = document.querySelectorAll('.error').length > 0;
-            for (let r = 0; r < 9; r++) {
-                for (let c = 0; c < 9; c++) {
-                    if (currentBoardData[r][c] === 0) isFull = false;
-                }
-            }
-
-            if (isFull && !hasError && !isCleared) {
-                isCleared = true; 
-                stopTimer(); 
-                document.querySelectorAll('.selected').forEach(cell => cell.classList.remove('selected'));
-                selectedCell = null;
-                
-                setCoachState('happy');
-                playClearSound(); 
-
-                const currentStageName = stageTitle.innerText;
-                const totalSeconds = Math.floor((Date.now() - startTime) / 1000);
-                
-                savedData.cleared[currentStageName] = true;
-                
-                if (!savedData.bestTimes[currentStageName] || totalSeconds < savedData.bestTimes[currentStageName]) {
-                    savedData.bestTimes[currentStageName] = totalSeconds;
-                }
-                saveGameData(); 
-
-                setTimeout(() => {
-                    document.getElementById('final-time').innerText = timerDisplay.innerText;
-                    clearModal.style.display = 'flex';
-                }, 1000); 
+            let isFull = true; for(let r=0;r<9;r++) for(let c=0;c<9;c++) if(currentBoardData[r][c]===0) isFull=false;
+            if (isFull && document.querySelectorAll('.error').length === 0 && !isCleared) {
+                isCleared = true; stopTimer(); document.querySelectorAll('.selected').forEach(c => c.classList.remove('selected')); selectedCell = null;
+                setCoachState('happy'); playClearSound();
+                const title = stageTitle.innerText, tSec = elapsedSecondsOffset + Math.floor((Date.now() - startTime) / 1000);
+                savedData.cleared[title] = true; if (!savedData.bestTimes[title] || tSec < savedData.bestTimes[title]) savedData.bestTimes[title] = tSec;
+                saveGameData(); setTimeout(() => { document.getElementById('final-time').innerText = timerDisplay.innerText; clearModal.style.display = 'flex'; }, 1000); 
             }
         }
+        function closeClearModal() { playClickSound(); clearModal.style.display = 'none'; backToMenu(); }
 
-        function closeClearModal() {
-            playClickSound(); 
-            clearModal.style.display = 'none';
-            backToMenu();
+        function updateHintButtonText() {
+            hintBtn.classList.remove('upsell-mode');
+            if (freeHintsRemaining > 0) { hintBtn.innerText = `AIに聞く (無料枠: ${freeHintsRemaining}回)`; } 
+            else if (savedData.hintTickets > 0) { hintBtn.innerText = `AIに聞く (チケット消費 残:${savedData.hintTickets})`; } 
+            else { hintBtn.innerText = "💎 ヒントチケットを購入する"; hintBtn.classList.add('upsell-mode'); }
         }
 
         async function getHint() {
-            if (isThinking) return; 
-            playClickSound(); 
+            if (isThinking) return; playClickSound(); 
             
-            if (hintsRemaining <= 0 && !isUnlimitedHints) {
-                const wantsToBuy = confirm("1ステージの無料ヒント枠（3回）を使い切りました。\n\n「AIヒント使い放題パック（100円）」を購入して、このステージの続きをAIと一緒に解きますか？");
-                
-                if (wantsToBuy) {
-                    window.open(STRIPE_LINKS.hint, '_blank');
-                    setTimeout(() => {
-                        const isPaid = confirm("【決済確認】\n別タブでの決済は完了しましたか？\n（※プロトタイプ版のため「OK」を押すと使い放題が解放されます）");
-                        if (isPaid) {
-                            isUnlimitedHints = true;
-                            hintBtn.classList.remove('upsell-mode');
-                            hintBtn.innerText = "AIにヒントを聞く (使い放題✨)";
-                            alert("ありがとうございます！ヒントが使い放題になりました！");
-                        }
-                    }, 1000); 
-                    return; 
-                } else {
-                    return;
-                }
+            if (freeHintsRemaining <= 0 && (!savedData.hintTickets || savedData.hintTickets <= 0)) {
+                purchaseHintDuringGame(); return; 
             }
 
-            isThinking = true;
-            const currentSession = playSessionId; 
-
-            hintBtn.disabled = true;
-            hintBtn.innerText = "思考中...";
-            loadingDisplay.style.display = 'block';
-            hintArea.style.display = 'none';
-            hintArea.innerText = "";
-            clearHighlights();
-            
-            setCoachState('thinking');
+            isThinking = true; const currentSession = playSessionId; 
+            hintBtn.disabled = true; hintBtn.innerText = "思考中..."; loadingDisplay.style.display = 'block'; hintArea.style.display = 'none'; document.querySelectorAll('.highlight').forEach(c => c.classList.remove('highlight')); setCoachState('thinking');
 
             try {
-                // ★ 変更点：初期盤面と現在の盤面の両方をGASに送る
-                const payloadData = {
-                    originalBoard: currentOriginalBoard,
-                    currentBoard: currentBoardData
-                };
-
-                const response = await fetch(GAS_WEB_APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payloadData)
-                });
-                
+                const res = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ originalBoard: currentOriginalBoard, currentBoard: currentBoardData }) });
                 if (currentSession !== playSessionId) return;
-
-                if (!response.ok) throw new Error('通信エラーが発生しました。');
-                const result = await response.json();
-                
+                if (!res.ok) throw new Error('通信エラーが発生しました。');
+                const result = await res.json();
                 if (currentSession !== playSessionId) return; 
 
                 if (result.success && result.hint) {
-                    if (!isUnlimitedHints) {
-                        hintsRemaining--;
-                    }
-                    displayHint(result.hint);
+                    if (freeHintsRemaining > 0) { freeHintsRemaining--; } 
+                    else { savedData.hintTickets--; saveGameData(); updateTicketDisplay(); }
+                    
+                    const r = parseInt(result.hint.target_row) - 1, c = parseInt(result.hint.target_col) - 1;
+                    hintArea.innerText = `コーチのヒント：\n${result.hint.explanation}`; hintArea.style.display = 'block';
+                    document.getElementById(`cell-${r}-${c}`).classList.add('highlight'); selectCell(r, c);
                 } else {
-                    hintArea.innerText = `ヒントを取得できませんでした: ${result.error?.message || '不明なエラー'}`;
-                    hintArea.style.display = 'block';
+                    hintArea.innerText = `ヒントを取得できませんでした: ${result.error?.message || '不明なエラー'}`; hintArea.style.display = 'block';
                 }
             } catch (error) {
-                if (currentSession !== playSessionId) return;
-                hintArea.innerText = `エラーが発生しました: ${error.message}`;
-                hintArea.style.display = 'block';
+                if (currentSession !== playSessionId) return; hintArea.innerText = `エラー: ${error.message}`; hintArea.style.display = 'block';
             } finally {
                 if (currentSession === playSessionId) {
-                    isThinking = false;
-                    loadingDisplay.style.display = 'none';
-                    hintBtn.disabled = false;
-                    setCoachState('normal');
-                    
-                    if (isUnlimitedHints) {
-                        hintBtn.innerText = "AIにヒントを聞く (使い放題✨)";
-                    } else if (hintsRemaining > 0) {
-                        hintBtn.innerText = `AIにヒントを聞く (残り${hintsRemaining}回)`;
-                    } else {
-                        hintBtn.innerText = "💎 ヒント使い放題を解放する";
-                        hintBtn.classList.add('upsell-mode');
-                    }
+                    isThinking = false; loadingDisplay.style.display = 'none'; hintBtn.disabled = false; setCoachState('normal'); updateHintButtonText();
                 }
             }
         }
 
-        // ★ 変更点：AIからの返答をそのまま表示し、指定マスをハイライト
-        function displayHint(hint) {
-            playClickSound(); 
-            const r = parseInt(hint.target_row) - 1;
-            const c = parseInt(hint.target_col) - 1;
-            
-            hintArea.innerText = `コーチのヒント：\n${hint.explanation}`;
-            hintArea.style.display = 'block';
-            
-            const targetCell = document.getElementById(`cell-${r}-${c}`);
-            targetCell.classList.add('highlight');
-            selectCell(r, c); // ユーザーがすぐ消せるようにマスを選択状態にする
-        }
-
-        function clearHighlights() {
-            document.querySelectorAll('.highlight').forEach(cell => cell.classList.remove('highlight'));
-        }
-
         hintBtn.addEventListener('click', getHint);
-        window.onload = initMenu;
-
+        function resetSaveData() { if(confirm("【開発用】セーブデータをリセットしますか？")) { localStorage.removeItem('sudokuAppSave'); location.href = location.pathname; } }
     </script>
 </body>
 </html>
